@@ -44,6 +44,9 @@
         body { font-family: 'Jost', sans-serif; background-color: #fcfaf8; color: #2d2d2d; margin: 0; padding: 0; overflow-x: hidden; }
         h1, h2, h3, h4, .font-bebas { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.06em; }
         
+        /* Fix for iOS Input Zoom */
+        @media screen and (max-width: 768px) { input, textarea, select { font-size: 16px !important; } }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -71,9 +74,10 @@
         @keyframes toastSlideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 
-        /* FIX: Prevents iOS Safari auto-zoom on inputs which breaks layout on mobile */
-        @media screen and (max-width: 768px) {
-            input, textarea, select { font-size: 16px !important; }
+        /* Remove mobile hover stickiness */
+        @media (hover: none) {
+            .hover-fix:hover { background-color: inherit; color: inherit; border-color: inherit; }
+            .time-slot-btn.active { background-color: #B2977D !important; color: white !important; border-color: #B2977D !important; }
         }
     </style>
 </head>
@@ -108,7 +112,6 @@
             </div>
         </div>
 
-        <!-- Mobile Nav Menu -->
         <div id="mobile-menu" class="md:hidden absolute top-[100%] w-full bg-white/95 backdrop-blur-md shadow-xl border-t border-gray-100 z-50">
             <div class="pt-2 pb-4 space-y-1 px-2">
                 <button onclick="navigate('home')" class="mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-medium bg-brand/10 text-brand" data-target="home">Inicio</button>
@@ -134,10 +137,9 @@
                     <i data-lucide="shield-check" class="w-3 h-3 mr-1"></i> Admin Activo
                 </div>
 
-                <!-- Logo Container: Modified for maximum size visibility -->
-                <div class="h-56 sm:h-64 bg-gradient-to-br from-brand/20 to-brand/5 w-full relative overflow-hidden flex flex-col items-center justify-center p-2">
+                <div class="h-56 sm:h-64 bg-gradient-to-br from-brand/20 to-brand/5 w-full relative overflow-hidden flex flex-col items-center justify-center p-6">
                     <div class="relative z-10 flex flex-col items-center w-full h-full justify-center">
-                        <img id="home-logo-img" src="./logo.png" alt="Pam Ilarregui Logo" class="w-[95%] h-[95%] object-contain hidden drop-shadow-md transition-all" onerror="this.classList.add('hidden'); document.getElementById('home-logo-fallback').classList.remove('hidden');">
+                        <img id="home-logo-img" src="./logo.png" alt="Pam Ilarregui Logo" class="w-[95%] h-[95%] object-contain hidden drop-shadow-md" onerror="this.classList.add('hidden'); document.getElementById('home-logo-fallback').classList.remove('hidden');">
                         <div id="home-logo-fallback" class="text-center">
                             <h1 class="font-bebas text-5xl text-gray-900 tracking-[0.1em] leading-none drop-shadow-sm">PAM ILARREGUI</h1>
                             <p class="text-[11px] tracking-[0.3em] uppercase font-semibold text-brand mt-2">Make Up & Beauty</p>
@@ -155,7 +157,7 @@
                             <button onclick="updateLogoImage()" class="bg-brand text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-sm">Subir</button>
                         </div>
                         <div class="flex space-x-2">
-                            <input type="text" id="input-logo-url-fallback" placeholder="O pega el Link URL del logo..." class="flex-1 text-xs p-2 rounded-lg border border-gray-200 outline-none focus:border-brand">
+                            <input type="text" id="input-logo-url-fallback" placeholder="O pega el Link URL del logo..." class="flex-1 p-2 rounded-lg border border-gray-200 outline-none focus:border-brand">
                             <button onclick="updateLogoUrlFallback()" class="bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-sm">Forzar URL</button>
                         </div>
                     </div>
@@ -169,7 +171,7 @@
 
                     <div class="flex flex-col items-center mb-8 bg-gray-50 px-5 py-3 rounded-xl w-full border border-gray-100">
                         <div class="flex items-center space-x-2 mb-1">
-                            <div id="status-indicator" class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></div>
+                            <div id="status-indicator" class="w-2.5 h-2.5 rounded-full bg-gray-400 shadow-[0_0_8px_rgba(156,163,175,0.6)]"></div>
                             <span id="status-text" class="text-sm font-semibold text-gray-700">Calculando horario...</span>
                         </div>
                         <p class="text-xs text-gray-400 flex items-center mt-1"><i data-lucide="calendar-days" class="w-3 h-3 mr-1"></i> <span id="working-days-text">Lunes a Sábados</span></p>
@@ -250,8 +252,8 @@
                     <i data-lucide="star" data-rating="4" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
                     <i data-lucide="star" data-rating="5" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
                 </div>
-                <input type="text" id="review-name" placeholder="Tu Nombre" class="w-full mb-4 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm font-medium" />
-                <textarea id="review-comment" rows="3" placeholder="Cuéntanos más detalles..." class="w-full mb-5 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm resize-none"></textarea>
+                <input type="text" id="review-name" placeholder="Tu Nombre" class="w-full mb-4 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand font-medium" />
+                <textarea id="review-comment" rows="3" placeholder="Cuéntanos más detalles..." class="w-full mb-5 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand resize-none"></textarea>
                 
                 <div class="flex justify-end space-x-3">
                     <button onclick="toggleReviewModal()" class="px-5 py-2.5 text-gray-500 hover:bg-gray-100 rounded-xl text-sm font-medium transition-colors">Cancelar</button>
@@ -374,7 +376,7 @@
             <h3 id="input-modal-title" class="font-semibold text-gray-900 mb-2">Ingresar dato</h3>
             <p id="input-modal-desc" class="text-sm text-gray-500 mb-4 hidden"></p>
             
-            <input type="text" id="input-modal-field" class="w-full p-3 rounded-xl border border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-sm mb-5">
+            <input type="text" id="input-modal-field" class="w-full p-3 rounded-xl border border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none mb-5">
             <input type="file" id="input-modal-file-field" accept="image/*" class="w-full p-3 rounded-xl border border-gray-300 focus:border-brand outline-none text-sm mb-5 hidden file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer">
             
             <div class="flex justify-end space-x-3">
@@ -402,12 +404,12 @@
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">2. Horarios Disponibles</label>
                         <div class="grid grid-cols-3 gap-3" id="time-slots-container">
-                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">10:00</button>
-                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">11:30</button>
-                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">14:00</button>
-                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">15:30</button>
-                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">17:00</button>
-                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">18:30</button>
+                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">10:00</button>
+                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">11:30</button>
+                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">14:00</button>
+                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">15:30</button>
+                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">17:00</button>
+                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">18:30</button>
                         </div>
                     </div>
 
@@ -429,20 +431,20 @@
                     <div class="space-y-4 mb-8 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                         <div>
                             <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Nombre Completo *</label>
-                            <input type="text" id="client-name" placeholder="Ej: Lucía Pérez" class="w-full p-3.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-brand">
+                            <input type="text" id="client-name" placeholder="Ej: Lucía Pérez" class="w-full p-3.5 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:border-brand">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">WhatsApp *</label>
                             <div class="flex">
                                 <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 font-medium">+54</span>
-                                <input type="tel" id="client-phone" placeholder="9 11 2345-6789" class="w-full p-3.5 rounded-r-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-brand">
+                                <input type="tel" id="client-phone" placeholder="9 11 2345-6789" class="w-full p-3.5 rounded-r-xl border border-gray-200 bg-gray-50 outline-none focus:border-brand">
                             </div>
                         </div>
                     </div>
 
                     <div class="flex space-x-3">
-                        <button onclick="goToBookingStep(1)" class="px-5 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors">Volver</button>
-                        <button onclick="confirmBooking()" class="flex-1 bg-gray-900 text-white font-medium py-3.5 rounded-xl text-sm shadow hover:bg-black transition-colors flex justify-center items-center">
+                        <button onclick="goToBookingStep(1)" class="px-5 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition-colors">Volver</button>
+                        <button onclick="confirmBooking()" class="flex-1 bg-gray-900 text-white font-medium py-3.5 rounded-xl shadow hover:bg-black transition-colors flex justify-center items-center">
                             <i data-lucide="check" class="w-4 h-4 mr-2"></i> Confirmar Turno
                         </button>
                     </div>
@@ -461,10 +463,10 @@
             <h3 class="font-bebas text-3xl text-gray-900 mb-1 tracking-wide">Acceso Seguro</h3>
             <p class="text-sm text-gray-500 mb-6">Ingresa para gestionar el contenido</p>
             <div class="space-y-3 mb-6">
-                <input type="text" id="admin-user-input" placeholder="Usuario (admin)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-gray-900 transition-all">
-                <input type="password" id="admin-pass-input" placeholder="Contraseña (123)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-gray-900 transition-all">
+                <input type="text" id="admin-user-input" placeholder="Usuario (admin)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-gray-900 transition-all">
+                <input type="password" id="admin-pass-input" placeholder="Contraseña (123)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-gray-900 transition-all">
             </div>
-            <button onclick="verifyAdminLogin()" class="w-full bg-brand text-white py-3.5 rounded-xl text-sm font-medium shadow-md hover:bg-brand-dark transition-colors">Ingresar al Panel</button>
+            <button onclick="verifyAdminLogin()" class="w-full bg-brand text-white py-3.5 rounded-xl font-medium shadow-md hover:bg-brand-dark transition-colors">Ingresar al Panel</button>
             <p id="login-error-msg" class="text-xs text-red-500 mt-4 hidden font-medium bg-red-50 py-2 rounded-lg">Credenciales incorrectas.</p>
         </div>
     </div>
@@ -484,45 +486,45 @@
 
     <!-- MODAL: Crear/Editar Producto Inventario (Admin) -->
     <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col max-h-[90vh]">
             <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100">
                 <h3 id="product-modal-title" class="font-bebas text-2xl text-gray-900 tracking-wide">Producto en Depósito</h3>
                 <button onclick="toggleProductModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-5 bg-gray-50 space-y-4">
+            <div class="p-5 bg-gray-50 space-y-4 overflow-y-auto">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Título / Nombre</label>
-                    <input type="text" id="prod-title" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                    <input type="text" id="prod-title" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cód. Interno</label>
-                        <input type="text" id="prod-code" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                        <input type="text" id="prod-code" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cód. Barras (Opc)</label>
-                        <input type="text" id="prod-barcode" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                        <input type="text" id="prod-barcode" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Costo ($)</label>
-                        <input type="number" id="prod-cost" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                        <input type="number" id="prod-cost" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Precio Venta ($)</label>
-                        <input type="number" id="prod-price" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                        <input type="number" id="prod-price" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Stock Inicial</label>
-                    <input type="number" id="prod-stock" value="0" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm font-bold">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Stock</label>
+                    <input type="number" id="prod-stock" value="0" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand font-bold">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Imagen (Opcional)</label>
-                    <input type="file" id="prod-img" accept="image/*" class="w-full text-xs file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer">
+                    <input type="file" id="prod-img" accept="image/*" class="w-full file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer">
                 </div>
             </div>
             <div class="p-4 bg-white border-t border-gray-100 flex justify-end">
-                <button onclick="saveProduct()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium text-sm shadow hover:bg-brand-dark transition-colors">Guardar Producto</button>
+                <button onclick="saveProduct()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium shadow hover:bg-brand-dark transition-colors">Guardar Producto</button>
             </div>
         </div>
     </div>
@@ -531,36 +533,36 @@
     <div id="service-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col">
             <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100">
-                <h3 class="font-bebas text-2xl text-gray-900 tracking-wide">Nuevo Servicio</h3>
+                <h3 id="service-modal-title" class="font-bebas text-2xl text-gray-900 tracking-wide">Nuevo Servicio</h3>
                 <button onclick="toggleServiceModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-5 bg-gray-50 space-y-4 overflow-y-auto max-h-[60vh]">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Título del Servicio *</label>
-                    <input type="text" id="srv-title" placeholder="Ej: Perfilado de Cejas" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                    <input type="text" id="srv-title" placeholder="Ej: Perfilado de Cejas" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Precio *</label>
-                        <input type="text" id="srv-price" placeholder="Ej: $20.000" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                        <input type="text" id="srv-price" placeholder="Ej: $20.000" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Duración</label>
-                        <input type="text" id="srv-time" placeholder="Ej: 60 min" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                        <input type="text" id="srv-time" placeholder="Ej: 60 min" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Descripción</label>
-                    <textarea id="srv-desc" rows="3" placeholder="Breve detalle del servicio..." class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm resize-none"></textarea>
+                    <textarea id="srv-desc" rows="3" placeholder="Breve detalle del servicio..." class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand resize-none"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Imagen (Opcional)</label>
-                    <input type="file" id="srv-img" accept="image/*" class="w-full text-xs file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer mb-2">
+                    <input type="file" id="srv-img" accept="image/*" class="w-full file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer mb-2">
                     <input type="text" id="srv-img-url" placeholder="O pega el Link URL de la imagen..." class="w-full p-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-xs">
                 </div>
             </div>
             <div class="p-4 bg-white border-t border-gray-100 flex justify-end">
-                <button onclick="saveService()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium text-sm shadow hover:bg-brand-dark transition-colors">Guardar Servicio</button>
+                <button onclick="saveService()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium shadow hover:bg-brand-dark transition-colors">Guardar Servicio</button>
             </div>
         </div>
     </div>
@@ -609,6 +611,8 @@
         };
 
         let appState = { isAdmin: false };
+        let currentEditProductId = null;
+        let currentEditServiceId = null;
         
         // Memoria de Respaldo: Permite que el sistema siga funcionando incluso si Firestore falla
         let mockBookings = [];
@@ -628,7 +632,6 @@
                     return await storageRef.getDownloadURL();
                 } catch (error) {
                     console.warn("Storage no configurado, forzando imagen local en Base64...", error);
-                    // FALLBACK MAGICO: Convierte la imagen a texto (Base64) para que funcione sin Firebase Storage
                     return new Promise((resolve) => {
                         const reader = new FileReader();
                         reader.onloadend = () => resolve(reader.result);
@@ -657,6 +660,14 @@
             async addService(service) {
                 try { const docRef = await db.collection('services').add(service); return { id: docRef.id, ...service }; } 
                 catch(e) { service.id = Date.now().toString(); mockServices.push(service); return service; }
+            },
+            async updateService(id, data) {
+                try { await db.collection('services').doc(id).update(data); return true; }
+                catch(e) {
+                    const idx = mockServices.findIndex(s => s.id === id);
+                    if(idx > -1) mockServices[idx] = { ...mockServices[idx], ...data };
+                    return true;
+                }
             },
             async deleteService(id) { 
                 try { await db.collection('services').doc(id).delete(); return true; } 
@@ -720,11 +731,6 @@
                 try { const docRef = await db.collection('inventory').add(p); return { id: docRef.id, ...p }; } 
                 catch(e) { p.id = Date.now().toString(); mockInventory.push(p); return p; }
             },
-            async updateProductStock(id, newStock) {
-                try { await db.collection('inventory').doc(id).update({ stock: newStock }); return true; } 
-                catch(e) { const p = mockInventory.find(i => i.id === id); if (p) p.stock = newStock; return true; }
-            },
-            // NEW: Metodos Completos para editar y eliminar del deposito
             async updateProduct(id, data) {
                 try { await db.collection('inventory').doc(id).update(data); return true; }
                 catch(e) {
@@ -733,8 +739,12 @@
                     return true;
                 }
             },
+            async updateProductStock(id, newStock) {
+                try { await db.collection('inventory').doc(id).update({ stock: newStock }); return true; } 
+                catch(e) { const p = mockInventory.find(i => i.id === id); if (p) p.stock = newStock; return true; }
+            },
             async deleteProduct(id) {
-                try { await db.collection('inventory').doc(id).delete(); return true; }
+                try { await db.collection('inventory').doc(id).delete(); return true; } 
                 catch(e) { mockInventory = mockInventory.filter(i => i.id !== id); return true; }
             }
         };
@@ -850,16 +860,15 @@
             const settings = await api.getSettings();
             const now = new Date(); 
             const hour = now.getHours();
-            const day = now.getDay(); // 0 es Domingo, 1 es Lunes, 6 es Sábado
+            const day = now.getDay(); 
             
-            // Analizar el texto para saber si abren sábados o domingos
             const daysText = (settings.workingDays || 'Lunes a Sábados').toLowerCase();
             let isDayOpen = true;
             
             if (day === 0 && !daysText.includes('domingo')) {
-                isDayOpen = false; // Es domingo y no dice domingo en el texto
+                isDayOpen = false;
             } else if (day === 6 && !daysText.includes('sábado') && !daysText.includes('sabado')) {
-                isDayOpen = false; // Es sábado y no dice sábado en el texto
+                isDayOpen = false;
             }
 
             const isOpenTime = hour >= settings.openHour && hour < settings.closeHour;
@@ -907,15 +916,20 @@
             await renderInventory();
         }
 
+        let loadedServices = [];
+        
         async function renderServices() {
-            const services = await api.getServices();
+            loadedServices = await api.getServices();
             const container = document.getElementById('services-container');
-            if (services.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No hay servicios configurados.</div>`; return; }
-            container.innerHTML = services.map(s => `
+            if (loadedServices.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No hay servicios configurados.</div>`; return; }
+            container.innerHTML = loadedServices.map(s => `
                 <div class="bg-white rounded-3xl shadow-soft border border-gray-100 overflow-hidden group hover:shadow-lg transition-shadow">
                     <div class="h-56 w-full relative overflow-hidden">
                         <img src="${s.img}" alt="${s.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio'" />
-                        ${appState.isAdmin ? `<div class="absolute top-3 right-3 z-10"><button onclick="handleDeleteService('${s.id}')" class="p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>` : ''}
+                        ${appState.isAdmin ? `<div class="absolute top-3 right-3 z-10 flex space-x-2">
+                            <button onclick="editService('${s.id}')" class="p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                            <button onclick="handleDeleteService('${s.id}')" class="p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>` : ''}
                     </div>
                     <div class="p-6">
                         <div class="flex justify-between items-start mb-3">
@@ -1013,8 +1027,12 @@
 
         function selectTimeSlot(time) {
             selectedTime = time;
-            document.querySelectorAll('.time-slot-btn').forEach(b => { b.classList.remove('bg-brand', 'text-white', 'border-brand'); b.classList.add('text-gray-600', 'border-gray-200'); });
-            event.target.classList.remove('text-gray-600', 'border-gray-200'); event.target.classList.add('bg-brand', 'text-white', 'border-brand');
+            document.querySelectorAll('.time-slot-btn').forEach(b => { 
+                b.classList.remove('active', 'bg-brand', 'text-white', 'border-brand'); 
+                b.classList.add('text-gray-600', 'border-gray-200'); 
+            });
+            event.currentTarget.classList.remove('text-gray-600', 'border-gray-200'); 
+            event.currentTarget.classList.add('active', 'bg-brand', 'text-white', 'border-brand');
             selectedDate = document.getElementById('booking-date').value;
             checkBookingStep1Ready();
         }
@@ -1052,7 +1070,6 @@
 
         document.querySelectorAll('.star-rate').forEach(star => {
             star.addEventListener('click', (e) => {
-                // Fix applied here: using currentTarget to get the rating from the <i> element even if a child <path> is clicked
                 currentReviewRating = parseInt(e.currentTarget.dataset.rating || 5);
                 document.querySelectorAll('.star-rate').forEach((s, idx) => {
                     if (idx < currentReviewRating) { s.classList.add('text-yellow-400', 'fill-current'); s.classList.remove('text-gray-200'); } 
@@ -1224,10 +1241,29 @@
 
         async function handleDeleteGallery(id) { await api.deleteGalleryItem(id); await renderGallery(); showToast('Foto eliminada', 'success'); }
 
+        function editService(id) {
+            const srv = loadedServices.find(s => s.id === id);
+            if(!srv) return;
+            
+            currentEditServiceId = id;
+            document.getElementById('service-modal-title').textContent = 'Editar Servicio';
+            document.getElementById('srv-title').value = srv.title || '';
+            document.getElementById('srv-price').value = srv.price || '';
+            document.getElementById('srv-time').value = srv.time || '';
+            document.getElementById('srv-desc').value = srv.desc || '';
+            document.getElementById('srv-img').value = '';
+            document.getElementById('srv-img-url').value = '';
+
+            const modal = document.getElementById('service-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('opacity-100'), 10);
+        }
+
         function toggleServiceModal() {
             const modal = document.getElementById('service-modal');
             if (modal.classList.contains('hidden')) {
-                // Limpiar campos al abrir
+                currentEditServiceId = null;
+                document.getElementById('service-modal-title').textContent = 'Nuevo Servicio';
                 document.getElementById('srv-title').value = '';
                 document.getElementById('srv-price').value = '';
                 document.getElementById('srv-time').value = '';
@@ -1256,7 +1292,7 @@
                 return;
             }
 
-            let finalImgUrl = 'https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio';
+            let finalImgUrl = null;
             
             if (fileInput.files.length > 0) {
                 showToast('Subiendo imagen del servicio...', 'success');
@@ -1266,19 +1302,29 @@
                 finalImgUrl = urlInput;
             }
 
-            const newService = { 
+            const serviceData = { 
                 title: title, 
                 price: price, 
                 time: time || 'Consultar', 
-                img: finalImgUrl, 
                 desc: desc || '', 
                 timestamp: Date.now() 
             };
 
-            await api.addService(newService);
+            if (finalImgUrl) {
+                serviceData.img = finalImgUrl;
+            }
+
+            if (currentEditServiceId) {
+                await api.updateService(currentEditServiceId, serviceData);
+                showToast('Servicio actualizado con éxito', 'success');
+            } else {
+                if (!serviceData.img) serviceData.img = 'https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio';
+                await api.addService(serviceData);
+                showToast('Servicio guardado con éxito', 'success');
+            }
+
             await renderServices();
             toggleServiceModal();
-            showToast('Servicio guardado con éxito', 'success');
         }
 
         async function handleDeleteService(id) { await api.deleteService(id); await renderServices(); showToast('Servicio eliminado', 'success'); }
@@ -1369,26 +1415,22 @@
             modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // Logic variables para edicion de inventario
-        let inventoryItems = [];
-        let currentEditProductId = null;
+        let loadedInventory = [];
 
         async function renderInventory() {
-            inventoryItems = await api.getInventory();
+            loadedInventory = await api.getInventory();
             const container = document.getElementById('inventory-container');
-            if (inventoryItems.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No hay productos en inventario.</div>`; return; }
+            if (loadedInventory.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No hay productos en inventario.</div>`; return; }
             
-            container.innerHTML = inventoryItems.map(p => `
+            container.innerHTML = loadedInventory.map(p => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative group flex flex-col h-full">
-                    
-                    ${appState.isAdmin ? `
-                    <div class="absolute top-3 right-3 flex space-x-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="editProduct('${p.id}')" class="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                        <button onclick="handleDeleteProduct('${p.id}')" class="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    ${appState.isAdmin ? `<div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <button onclick="editProduct('${p.id}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-500 hover:text-white transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        <button onclick="deleteProduct('${p.id}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>` : ''}
-
+                    
                     ${p.img ? `<div class="w-full h-32 mb-4 rounded-xl overflow-hidden bg-gray-50 border border-gray-100"><img src="${p.img}" class="w-full h-full object-contain" alt="${p.title}"></div>` : ''}
-                    <h4 class="font-bold text-gray-900 text-base mb-1 truncate">${p.title}</h4>
+                    <h4 class="font-bold text-gray-900 text-base mb-1 truncate pr-16">${p.title}</h4>
                     <p class="text-[11px] text-brand font-bold uppercase tracking-widest mb-4 font-mono flex-grow">${p.code} ${p.barcode ? `| EAN: ${p.barcode}` : ''}</p>
                     
                     <div class="flex justify-between items-end mb-4">
@@ -1412,23 +1454,21 @@
         }
 
         function editProduct(id) {
-            const prod = inventoryItems.find(p => p.id === id);
+            const prod = loadedInventory.find(p => p.id === id);
             if(!prod) return;
-
+            
+            currentEditProductId = id;
+            document.getElementById('product-modal-title').textContent = 'Editar Producto';
             document.getElementById('prod-title').value = prod.title || '';
             document.getElementById('prod-code').value = prod.code || '';
             document.getElementById('prod-barcode').value = prod.barcode || '';
-            document.getElementById('prod-cost').value = prod.cost || 0;
-            document.getElementById('prod-price').value = prod.price || 0;
-            document.getElementById('prod-stock').value = prod.stock || 0;
+            document.getElementById('prod-cost').value = prod.cost || '';
+            document.getElementById('prod-price').value = prod.price || '';
+            document.getElementById('prod-stock').value = prod.stock || '0';
             document.getElementById('prod-img').value = ''; 
 
-            currentEditProductId = id;
-            document.getElementById('product-modal-title').textContent = 'Editar Producto';
-
             const modal = document.getElementById('product-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('opacity-100'), 10);
+            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
         }
 
         function toggleProductModal() {
@@ -1474,14 +1514,17 @@
             toggleProductModal(); 
         }
 
-        async function handleDeleteProduct(id) { 
-            await api.deleteProduct(id); 
-            await renderInventory(); 
-            showToast('Producto eliminado', 'success'); 
+        async function deleteProduct(id) {
+            if(confirm("¿Estás seguro de eliminar este producto?")) {
+                await api.deleteProduct(id);
+                await renderInventory();
+                showToast('Producto eliminado', 'success');
+            }
         }
 
         async function changeStock(id, amount) {
-            const prod = inventoryItems.find(i => i.id === id);
+            const items = await api.getInventory();
+            const prod = items.find(i => i.id === id);
             if(prod) {
                 let newStock = prod.stock + amount;
                 if(newStock < 0) newStock = 0;
