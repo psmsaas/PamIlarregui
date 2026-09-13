@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pam Ilarregui | Make Up & Beauty</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#B2977D',
+                        'brand-light': '#d4c2b3',
+                        'brand-dark': '#8e755e',
+                        'brand-bg': '#fcfaf8'
+                    },
+                    fontFamily: {
+                        bebas: ['"Bebas Neue"', 'sans-serif'],
+                        body: ['"Jost"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        'glow': '0 0 15px rgba(178, 151, 125, 0.4)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Jost', sans-serif; background-color: #fcfaf8; color: #2d2d2d; margin: 0; padding: 0; overflow-x: hidden; }
+        h1, h2, h3, h4, .font-bebas { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.06em; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #B2977D; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8e755e; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Animations */
+        .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .view-section { display: none !important; opacity: 0; transition: opacity 0.3s ease; }
+        .view-section.active { display: flex !important; flex-direction: column; animation: fadeIn 0.5s ease-out forwards; }
+
+        /* Glassmorphism nav */
+        .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
+
+        #mobile-menu { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 0; opacity: 0; overflow: hidden; transform: translateY(-10px); }
+        #mobile-menu.open { max-height: 500px; opacity: 1; transform: translateY(0); }
+        
+        /* Toasts */
+        .toast-enter { animation: toastSlideIn 0.3s ease-out forwards; }
+        .toast-leave { animation: toastSlideOut 0.3s ease-in forwards; }
+        @keyframes toastSlideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative pb-20 selection:bg-brand selection:text-white">
+
+    <nav class="glass-nav shadow-sm sticky top-0 z-40 transition-all duration-300">
+        <div class="max-w-md mx-auto sm:max-w-3xl lg:max-w-6xl px-4">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <!-- Trigger Administrador (5s) -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer select-none group" id="secret-admin-trigger" title="Mantén presionado para Admin">
+                    <span class="font-bebas text-2xl md:text-3xl tracking-widest text-brand group-hover:text-brand-dark transition-colors">PAM ILARREGUI</span>
+                </div>
+                
+                <div class="hidden md:flex md:space-x-6" id="desktop-nav">
+                    <button onclick="navigate('home')" class="nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-medium transition-all duration-300 border-brand text-brand" data-target="home">Inicio</button>
+                    <button onclick="navigate('services')" class="nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-medium transition-all duration-300 border-transparent text-gray-400 hover:text-gray-800 hover:border-brand-light" data-target="services">Servicios</button>
+                    <button onclick="navigate('reviews')" class="nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-medium transition-all duration-300 border-transparent text-gray-400 hover:text-gray-800 hover:border-brand-light" data-target="reviews">Reseñas</button>
+                    <button onclick="navigate('about')" class="nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-medium transition-all duration-300 border-transparent text-gray-400 hover:text-gray-800 hover:border-brand-light" data-target="about">Nosotros</button>
+                    <button onclick="navigate('gallery')" class="nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-medium transition-all duration-300 border-transparent text-gray-400 hover:text-gray-800 hover:border-brand-light" data-target="gallery">Galería</button>
+                    <button onclick="navigate('location')" class="nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-medium transition-all duration-300 border-transparent text-gray-400 hover:text-gray-800 hover:border-brand-light" data-target="location">Contacto</button>
+                    
+                    <!-- Admin Only Tabs -->
+                    <button onclick="navigate('calendar')" class="admin-only hidden nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-bold transition-all duration-300 border-transparent text-gray-800 hover:text-brand" data-target="calendar">Calendario</button>
+                    <button onclick="navigate('inventory')" class="admin-only hidden nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-bold transition-all duration-300 border-transparent text-gray-800 hover:text-brand" data-target="inventory">Depósito</button>
+                </div>
+
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-brand focus:outline-none p-2 transition-colors">
+                        <i data-lucide="menu" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="md:hidden absolute top-[100%] w-full bg-white/95 backdrop-blur-md shadow-xl border-t border-gray-100 z-50">
+            <div class="pt-2 pb-4 space-y-1 px-2">
+                <button onclick="navigate('home')" class="mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-medium bg-brand/10 text-brand" data-target="home">Inicio</button>
+                <button onclick="navigate('services')" class="mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800" data-target="services">Servicios</button>
+                <button onclick="navigate('reviews')" class="mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800" data-target="reviews">Reseñas</button>
+                <button onclick="navigate('about')" class="mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800" data-target="about">Nosotros</button>
+                <button onclick="navigate('gallery')" class="mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800" data-target="gallery">Galería</button>
+                <button onclick="navigate('location')" class="mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800" data-target="location">Contacto</button>
+                
+                <!-- Admin Only Mobile Tabs -->
+                <button onclick="navigate('calendar')" class="admin-only hidden mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-bold text-gray-800 bg-gray-100" data-target="calendar">📅 Calendario</button>
+                <button onclick="navigate('inventory')" class="admin-only hidden mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-bold text-gray-800 bg-gray-100" data-target="inventory">📦 Depósito</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="w-full flex-grow relative px-4 py-8">
+        <!-- VISTA: HOME -->
+        <section id="view-home" class="view-section active items-center justify-center min-h-[80vh]">
+            <div class="bg-white rounded-[2rem] shadow-soft overflow-hidden w-full max-w-md border border-brand/10 relative transform transition-all hover:shadow-xl">
+                
+                <div id="admin-badge-home" class="hidden absolute top-4 right-4 bg-black text-white text-xs font-bold px-4 py-1.5 rounded-full z-20 shadow-lg flex items-center">
+                    <i data-lucide="shield-check" class="w-3 h-3 mr-1"></i> Admin Activo
+                </div>
+
+                <div class="h-44 bg-gradient-to-br from-brand/20 to-brand/5 w-full relative overflow-hidden flex flex-col items-center justify-center p-4">
+                    <!-- LINK DIRECTO PARA EL LOGO AQUÍ -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <img id="home-logo-img" src="" alt="Pam Ilarregui Logo" class="h-20 mb-2 object-contain hidden drop-shadow-md" onerror="this.classList.add('hidden'); document.getElementById('home-logo-fallback').classList.remove('hidden');">
+                        <div id="home-logo-fallback" class="text-center">
+                            <h1 class="font-bebas text-5xl text-gray-900 tracking-[0.1em] leading-none drop-shadow-sm">PAM ILARREGUI</h1>
+                            <p class="text-[11px] tracking-[0.3em] uppercase font-semibold text-brand mt-2">Make Up & Beauty</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-8 flex flex-col items-center text-center">
+                    
+                    <!-- Admin Config: Logo -->
+                    <div id="admin-logo-config" class="admin-only hidden w-full mb-6 bg-brand-bg p-4 rounded-2xl border border-dashed border-brand/40">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Logo (Subir archivo o URL):</label>
+                        <div class="flex space-x-2 mb-2">
+                            <input type="file" accept="image/*" id="input-logo-file" class="flex-1 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand/10 file:text-brand-dark cursor-pointer">
+                            <button onclick="updateLogoImage()" class="bg-brand text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-sm">Subir</button>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="input-logo-url-fallback" placeholder="O pega el Link URL del logo..." class="flex-1 text-xs p-2 rounded-lg border border-gray-200 outline-none focus:border-brand">
+                            <button onclick="updateLogoUrlFallback()" class="bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-sm">Forzar URL</button>
+                        </div>
+                    </div>
+
+                    <!-- Rating & Status -->
+                    <div class="flex items-center space-x-2 bg-white border border-gray-100 shadow-sm px-5 py-2.5 rounded-full mb-4 cursor-pointer hover:bg-gray-50" onclick="navigate('reviews')">
+                        <div class="flex text-brand"><i data-lucide="star" class="w-4 h-4 fill-current"></i></div>
+                        <span class="font-bold text-gray-800">5.0</span>
+                        <span class="text-gray-400 text-sm font-medium">Ver reseñas</span>
+                    </div>
+
+                    <div class="flex flex-col items-center mb-8 bg-gray-50 px-5 py-3 rounded-xl w-full border border-gray-100">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <div id="status-indicator" class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></div>
+                            <span id="status-text" class="text-sm font-semibold text-gray-700">Calculando horario...</span>
+                        </div>
+                        <p class="text-xs text-gray-400 flex items-center mt-1"><i data-lucide="calendar-days" class="w-3 h-3 mr-1"></i> <span id="working-days-text">Lunes a Sábados</span></p>
+                    </div>
+
+                    <button onclick="navigate('services')" class="w-full bg-gray-900 text-white font-bebas text-2xl tracking-widest py-4 rounded-2xl shadow-lg hover:shadow-xl hover:bg-black transform transition-all active:scale-95 mb-4 group relative overflow-hidden">
+                        <span class="relative z-10">RESERVAR TURNO</span>
+                        <div class="absolute inset-0 h-full w-0 bg-brand transition-all duration-300 ease-out group-hover:w-full z-0"></div>
+                    </button>
+
+                    <a id="home-whatsapp-btn" href="#" target="_blank" class="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-3.5 rounded-2xl hover:border-brand hover:text-brand transition-all flex items-center justify-center space-x-2 mb-2">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        <span id="home-whatsapp-text">Contactar por WhatsApp</span>
+                    </a>
+
+                    <!-- Admin Config: Negocio -->
+                    <div id="admin-schedule-config" class="admin-only hidden w-full mt-6 p-5 bg-gray-50 rounded-2xl border border-gray-200 text-left">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-brand mb-3 flex items-center"><i data-lucide="settings" class="w-4 h-4 mr-1"></i> Ajustes de Negocio</h4>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <label class="text-gray-500 font-medium block mb-1">WhatsApp (ej: 54911...):</label>
+                                <input type="text" id="config-wa-input" class="w-full p-2.5 rounded-xl border border-gray-200 focus:border-brand outline-none">
+                            </div>
+                            <div>
+                                <label class="text-gray-500 font-medium block mb-1">Días laborales:</label>
+                                <input type="text" id="config-days-input" placeholder="Ej: Lunes a Viernes" class="w-full p-2.5 rounded-xl border border-gray-200 focus:border-brand outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-gray-500 font-medium block mb-1">Abre (hs):</label>
+                                    <input type="number" id="config-open-hour" min="0" max="23" class="w-full p-2.5 rounded-xl border border-gray-200 outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-gray-500 font-medium block mb-1">Cierra (hs):</label>
+                                    <input type="number" id="config-close-hour" min="0" max="23" class="w-full p-2.5 rounded-xl border border-gray-200 outline-none">
+                                </div>
+                            </div>
+                            <button onclick="saveAdminSettings()" class="w-full mt-2 bg-gray-900 text-white py-2.5 rounded-xl font-medium hover:bg-black transition-colors">Guardar Ajustes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: SERVICIOS -->
+        <section id="view-services" class="view-section max-w-3xl mx-auto py-4">
+            <div class="text-center mb-10">
+                <h2 class="font-bebas text-5xl text-gray-900 tracking-wider mb-2">Servicios</h2>
+                <div class="w-16 h-1 bg-brand mx-auto rounded-full"></div>
+            </div>
+            
+            <button onclick="promptAddService()" class="admin-only hidden mb-8 w-full py-4 border-2 border-dashed border-brand/50 bg-brand/5 text-brand-dark rounded-2xl flex justify-center items-center font-semibold hover:bg-brand/10 transition-colors">
+                <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> Crear Nuevo Servicio
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="services-container"></div>
+        </section>
+
+        <!-- VISTA: RESEÑAS -->
+        <section id="view-reviews" class="view-section max-w-2xl mx-auto py-4">
+            <div class="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
+                <div>
+                    <h2 class="font-bebas text-5xl text-gray-900 tracking-wider">Reseñas</h2>
+                    <p class="text-gray-500 text-sm mt-1">Lo que dicen nuestras clientas</p>
+                </div>
+                <button onclick="toggleReviewModal()" class="bg-gray-900 text-white px-5 py-2.5 rounded-xl font-medium shadow-md hover:bg-black transition-all flex items-center text-sm transform hover:-translate-y-0.5">
+                    <i data-lucide="pen-line" class="w-4 h-4 mr-2"></i> Escribir
+                </button>
+            </div>
+
+            <div id="review-form-card" class="hidden bg-white p-6 rounded-2xl shadow-soft border border-brand/10 mb-8 fade-in relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-brand"></div>
+                <h3 class="font-semibold text-gray-800 text-lg mb-4">¿Cómo fue tu experiencia?</h3>
+                <div class="flex space-x-1 mb-6 text-gray-200" id="star-picker">
+                    <i data-lucide="star" data-rating="1" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
+                    <i data-lucide="star" data-rating="2" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
+                    <i data-lucide="star" data-rating="3" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
+                    <i data-lucide="star" data-rating="4" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
+                    <i data-lucide="star" data-rating="5" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
+                </div>
+                <input type="text" id="review-name" placeholder="Tu Nombre" class="w-full mb-4 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm font-medium" />
+                <textarea id="review-comment" rows="3" placeholder="Cuéntanos más detalles..." class="w-full mb-5 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm resize-none"></textarea>
+                
+                <div class="flex justify-end space-x-3">
+                    <button onclick="toggleReviewModal()" class="px-5 py-2.5 text-gray-500 hover:bg-gray-100 rounded-xl text-sm font-medium transition-colors">Cancelar</button>
+                    <button onclick="submitReview()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium text-sm shadow hover:bg-brand-dark transition-colors">Publicar</button>
+                </div>
+            </div>
+            <div class="space-y-5" id="reviews-container"></div>
+        </section>
+
+        <!-- VISTA: ACERCA DE -->
+        <section id="view-about" class="view-section max-w-xl mx-auto py-8 flex flex-col items-center text-center">
+            <div class="relative mb-8 w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-xl bg-brand/10 flex items-center justify-center group">
+                <img id="about-profile-img" src="" alt="Pam Ilarregui" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div onclick="promptEditProfilePic()" class="admin-only hidden absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center text-white cursor-pointer opacity-0 hover:opacity-100 transition-opacity">
+                    <i data-lucide="camera" class="w-8 h-8 mb-2"></i>
+                    <span class="text-sm font-medium">Actualizar Foto</span>
+                </div>
+            </div>
+            
+            <h2 class="font-bebas text-5xl mb-4 text-gray-900 tracking-wider">Pam Ilarregui</h2>
+            <div class="w-12 h-1 bg-brand mb-6 rounded-full"></div>
+            
+            <div class="relative w-full px-4 mb-8">
+                <p id="about-desc-text" class="text-gray-600 leading-relaxed text-base md:text-lg font-light"></p>
+                <button onclick="promptEditAbout()" class="admin-only hidden mt-4 text-brand text-sm font-semibold hover:text-brand-dark underline transition-colors">Editar Biografía</button>
+            </div>
+
+            <div class="w-full max-w-sm h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mb-8"></div>
+            <h3 class="font-medium text-gray-400 mb-5 uppercase tracking-widest text-xs">Conecta Conmigo</h3>
+            
+            <div class="flex flex-wrap gap-4 justify-center items-center w-full mb-6" id="social-networks-container"></div>
+            <button onclick="promptAddSocial()" class="admin-only hidden text-sm text-gray-600 font-medium bg-white border border-dashed border-gray-300 px-5 py-2.5 rounded-xl hover:border-brand hover:text-brand transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 inline mr-1"></i> Red Social
+            </button>
+        </section>
+
+        <!-- VISTA: GALERÍA -->
+        <section id="view-gallery" class="view-section max-w-5xl mx-auto py-4">
+            <div class="text-center mb-10">
+                <h2 class="font-bebas text-5xl text-gray-900 tracking-wider mb-2">Portafolio</h2>
+                <div class="w-16 h-1 bg-brand mx-auto rounded-full"></div>
+            </div>
+            
+            <div class="admin-only hidden flex justify-center mb-8">
+                <button onclick="promptAddGalleryPhoto()" class="py-3 px-6 bg-white border border-brand text-brand rounded-xl flex items-center font-medium hover:bg-brand hover:text-white transition-colors shadow-sm">
+                    <i data-lucide="image-plus" class="w-5 h-5 mr-2"></i> Subir Foto
+                </button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="gallery-grid-container"></div>
+        </section>
+
+        <!-- VISTA: UBICACIÓN -->
+        <section id="view-location" class="view-section max-w-3xl mx-auto py-4">
+            <div class="text-center mb-10">
+                <h2 class="font-bebas text-5xl text-gray-900 tracking-wider mb-2">Ubicación</h2>
+                <div class="w-16 h-1 bg-brand mx-auto rounded-full"></div>
+            </div>
+            
+            <div class="bg-white p-3 rounded-[2rem] shadow-soft border border-gray-100 overflow-hidden mb-8 relative">
+                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-gray-100 relative group">
+                    <iframe id="location-iframe" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3403.456!2d-58.0!3d-31.3!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzHCsDE4JzAwLjAiUyA1OMKwMDAnMDAuMCJX!5e0!3m2!1ses!2sar!4v1600000000000" width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy" class="transition-opacity duration-300"></iframe>
+                    <div class="absolute inset-0 pointer-events-none border border-black/5 rounded-2xl"></div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-sm border border-gray-100 p-8 rounded-[2rem] text-center relative max-w-md mx-auto">
+                <div class="w-12 h-12 bg-brand/10 text-brand rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-medium text-gray-500 uppercase tracking-widest text-xs mb-2">Dirección del Estudio</h3>
+                <p id="location-address-text" class="text-gray-900 text-lg font-medium mb-6">Cargando...</p>
+                
+                <button onclick="promptEditLocation()" class="admin-only hidden w-full bg-gray-50 text-gray-700 text-sm font-semibold px-4 py-3 rounded-xl border border-gray-200 hover:border-brand hover:text-brand transition-colors">
+                    Actualizar Dirección
+                </button>
+            </div>
+        </section>
+
+        <!-- VISTA: CALENDARIO (Admin Only) -->
+        <section id="view-calendar" class="view-section max-w-4xl mx-auto py-4">
+            <div class="text-center mb-10">
+                <h2 class="font-bebas text-5xl text-gray-900 tracking-wider mb-2">Calendario</h2>
+                <p class="text-gray-500">Gestión de Turnos</p>
+                <div class="w-16 h-1 bg-brand mx-auto rounded-full mt-4"></div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-soft border border-gray-100 p-6">
+                <!-- Controles de Mes -->
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="changeCalendarMonth(-1)" class="p-2 bg-gray-50 hover:bg-brand/10 hover:text-brand rounded-full transition-colors text-gray-600"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <h3 id="calendar-month-year" class="font-bebas text-2xl text-gray-900 tracking-wide">MES AÑO</h3>
+                    <button onclick="changeCalendarMonth(1)" class="p-2 bg-gray-50 hover:bg-brand/10 hover:text-brand rounded-full transition-colors text-gray-600"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                </div>
+                
+                <!-- Días de la semana -->
+                <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">
+                    <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+                </div>
+                
+                <!-- Grilla del Calendario -->
+                <div id="calendar-grid" class="grid grid-cols-7 gap-2">
+                    <!-- Generado dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA: DEPÓSITO (Admin Only) -->
+        <section id="view-inventory" class="view-section max-w-5xl mx-auto py-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-gray-200 pb-4">
+                <div class="text-center sm:text-left mb-4 sm:mb-0">
+                    <h2 class="font-bebas text-5xl text-gray-900 tracking-wider">Depósito</h2>
+                    <p class="text-gray-500 text-sm mt-1">Control de Stock y Precios</p>
+                </div>
+                <button onclick="toggleProductModal()" class="bg-brand text-white px-5 py-3 rounded-xl font-medium shadow-md hover:bg-brand-dark transition-all flex items-center text-sm transform hover:-translate-y-0.5">
+                    <i data-lucide="package-plus" class="w-4 h-4 mr-2"></i> Nuevo Producto
+                </button>
+            </div>
+
+            <!-- Grilla de Inventario -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="inventory-container">
+                <!-- Generado dinámicamente -->
+            </div>
+        </section>
+
+    </main>
+
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- MODAL: Custom Input (Reemplaza prompt y file input) -->
+    <div id="custom-input-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 transform transition-transform scale-95 opacity-0" id="input-modal-content">
+            <h3 id="input-modal-title" class="font-semibold text-gray-900 mb-2">Ingresar dato</h3>
+            <p id="input-modal-desc" class="text-sm text-gray-500 mb-4 hidden"></p>
+            
+            <input type="text" id="input-modal-field" class="w-full p-3 rounded-xl border border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-sm mb-5">
+            <input type="file" id="input-modal-file-field" accept="image/*" class="w-full p-3 rounded-xl border border-gray-300 focus:border-brand outline-none text-sm mb-5 hidden file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer">
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeInputModal(false)" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">Cancelar</button>
+                <button onclick="closeInputModal(true)" class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-black transition-colors shadow-sm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Turnos (Booking Flow) -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+        <div class="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden fade-in max-h-[90vh] flex flex-col">
+            <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100 relative z-10">
+                <h3 id="booking-modal-title" class="font-bebas text-3xl text-gray-900 tracking-wide">Reservar Turno</h3>
+                <button onclick="closeBookingModal()" class="p-2 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-grow bg-gray-50/50" id="booking-step-content">
+                <div id="b-step-1">
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">1. Selecciona la Fecha</label>
+                        <input type="date" id="booking-date" class="w-full p-3.5 rounded-xl border border-gray-200 bg-gray-50 font-medium outline-none focus:border-brand focus:bg-white transition-all text-gray-700">
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">2. Horarios Disponibles</label>
+                        <div class="grid grid-cols-3 gap-3" id="time-slots-container">
+                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">10:00</button>
+                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">11:30</button>
+                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">14:00</button>
+                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">15:30</button>
+                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">17:00</button>
+                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">18:30</button>
+                        </div>
+                    </div>
+
+                    <button onclick="goToBookingStep(2)" id="btn-next-step" disabled class="w-full bg-gray-300 text-gray-500 font-medium py-4 rounded-2xl transition-all cursor-not-allowed uppercase tracking-widest text-sm">
+                        Continuar
+                    </button>
+                </div>
+
+                <div id="b-step-2" class="hidden">
+                    <div class="bg-brand/10 border border-brand/20 rounded-2xl p-4 mb-6 flex items-start space-x-3">
+                        <i data-lucide="info" class="w-5 h-5 text-brand mt-0.5"></i>
+                        <div>
+                            <p class="text-xs text-brand-dark uppercase tracking-wider font-bold mb-1">Resumen</p>
+                            <p class="text-sm font-medium text-gray-800" id="summary-service-name"></p>
+                            <p class="text-xs text-gray-500 mt-1" id="summary-date-time"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4 mb-8 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Nombre Completo *</label>
+                            <input type="text" id="client-name" placeholder="Ej: Lucía Pérez" class="w-full p-3.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-brand">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">WhatsApp *</label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 font-medium">+54</span>
+                                <input type="tel" id="client-phone" placeholder="9 11 2345-6789" class="w-full p-3.5 rounded-r-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-brand">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button onclick="goToBookingStep(1)" class="px-5 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors">Volver</button>
+                        <button onclick="confirmBooking()" class="flex-1 bg-gray-900 text-white font-medium py-3.5 rounded-xl text-sm shadow hover:bg-black transition-colors flex justify-center items-center">
+                            <i data-lucide="check" class="w-4 h-4 mr-2"></i> Confirmar Turno
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Admin Login -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl fade-in text-center relative border border-gray-100">
+            <button onclick="closeAdminLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-900 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="w-16 h-16 bg-gray-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg transform rotate-3">
+                <i data-lucide="shield-alert" class="w-8 h-8 -rotate-3"></i>
+            </div>
+            <h3 class="font-bebas text-3xl text-gray-900 mb-1 tracking-wide">Acceso Seguro</h3>
+            <p class="text-sm text-gray-500 mb-6">Ingresa para gestionar el contenido</p>
+            <div class="space-y-3 mb-6">
+                <input type="text" id="admin-user-input" placeholder="Usuario (admin)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-gray-900 transition-all">
+                <input type="password" id="admin-pass-input" placeholder="Contraseña (123)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-gray-900 transition-all">
+            </div>
+            <button onclick="verifyAdminLogin()" class="w-full bg-brand text-white py-3.5 rounded-xl text-sm font-medium shadow-md hover:bg-brand-dark transition-colors">Ingresar al Panel</button>
+            <p id="login-error-msg" class="text-xs text-red-500 mt-4 hidden font-medium bg-red-50 py-2 rounded-lg">Credenciales incorrectas.</p>
+        </div>
+    </div>
+
+    <!-- MODAL: Agenda del Día (Admin) -->
+    <div id="agenda-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col max-h-[80vh]">
+            <div class="p-5 bg-gray-900 text-white flex justify-between items-center relative z-10">
+                <h3 id="agenda-modal-date" class="font-bebas text-2xl tracking-wide">Turnos del Día</h3>
+                <button onclick="closeAgendaModal()" class="p-1 rounded-full hover:bg-gray-700 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto bg-gray-50 flex-grow space-y-3" id="agenda-list">
+                <!-- Inyectado dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Crear/Editar Producto Inventario (Admin) -->
+    <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col">
+            <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100">
+                <h3 class="font-bebas text-2xl text-gray-900 tracking-wide">Producto en Depósito</h3>
+                <button onclick="toggleProductModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 bg-gray-50 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Título / Nombre</label>
+                    <input type="text" id="prod-title" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cód. Interno</label>
+                        <input type="text" id="prod-code" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cód. Barras (Opc)</label>
+                        <input type="text" id="prod-barcode" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Costo ($)</label>
+                        <input type="number" id="prod-cost" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Precio Venta ($)</label>
+                        <input type="number" id="prod-price" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Stock Inicial</label>
+                    <input type="number" id="prod-stock" value="0" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm font-bold">
+                </div>
+            </div>
+            <div class="p-4 bg-white border-t border-gray-100 flex justify-end">
+                <button onclick="saveProduct()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium text-sm shadow hover:bg-brand-dark transition-colors">Guardar Producto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-sm text-gray-400 py-8 w-full border-t border-gray-200 bg-white mt-auto">
+        <div class="max-w-md mx-auto px-4 flex flex-col items-center">
+            <span class="font-bebas text-xl text-gray-300 tracking-widest mb-2">PAM ILARREGUI</span>
+            <p>© <span id="current-year"></span> Make Up & Beauty. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // 1. FIREBASE INITIALIZATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyAoP7R2rHgskj5pkqVXMGU1c0BJ8UHgd4U",
+            authDomain: "pamilarregui-11b97.firebaseapp.com",
+            projectId: "pamilarregui-11b97",
+            storageBucket: "pamilarregui-11b97.firebasestorage.app",
+            messagingSenderId: "901569739443",
+            appId: "1:901569739443:web:95b66fd0f5524e72990ec6"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        const defaultSettings = {
+            logoUrl: '',
+            whatsappNumber: '5491123456789',
+            openHour: 9,
+            closeHour: 19,
+            workingDays: 'Lunes a Sábados',
+            address: 'San Martín 123, Concordia, Entre Ríos',
+            aboutText: 'Soy Pam Ilarregui, apasionada por resaltar la belleza natural de cada persona. Con más de 5 años de experiencia en el mundo del makeup profesional...',
+            profileImg: 'https://placehold.co/600x800/B2977D/FFFFFF?text=Pam+Ilarregui'
+        };
+
+        let appState = { isAdmin: false };
+        let mockBookings = [];
+        let mockInventory = [];
+
+        // 2. DATA ACCESS LAYER (API FIREBASE)
+        const api = {
+            async uploadImage(file, folderName) {
+                try {
+                    const uniqueName = Date.now() + '_' + file.name;
+                    const storageRef = storage.ref().child(`${folderName}/${uniqueName}`);
+                    await storageRef.put(file);
+                    return await storageRef.getDownloadURL();
+                } catch (error) {
+                    console.error("Error Storage:", error);
+                    showToast('Firebase Storage pausado o sin configurar. Se requiere enlace URL.', 'error');
+                    return null;
+                }
+            },
+            async getSettings() {
+                try {
+                    const doc = await db.collection('settings').doc('general').get();
+                    if (doc.exists) return doc.data();
+                    await db.collection('settings').doc('general').set(defaultSettings);
+                    return defaultSettings;
+                } catch (e) { return defaultSettings; }
+            },
+            async updateSetting(key, value) {
+                try {
+                    await db.collection('settings').doc('general').set({ [key]: value }, { merge: true });
+                    return true;
+                } catch (e) { showToast('Error al guardar', 'error'); return false; }
+            },
+            
+            // Services
+            async getServices() {
+                try { const snapshot = await db.collection('services').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
+                catch(e) { return []; }
+            },
+            async addService(service) {
+                try { const docRef = await db.collection('services').add(service); return { id: docRef.id, ...service }; } 
+                catch(e) { return null; }
+            },
+            async deleteService(id) { try { await db.collection('services').doc(id).delete(); return true; } catch(e) { return false; } },
+            
+            // Reviews
+            async getReviews() {
+                try { const snapshot = await db.collection('reviews').orderBy('date', 'desc').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
+                catch(e) { return []; }
+            },
+            async addReview(review) { try { const docRef = await db.collection('reviews').add(review); return { id: docRef.id, ...review }; } catch(e) { return null; } },
+            
+            // Gallery
+            async getGallery() {
+                try { const snapshot = await db.collection('gallery').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
+                catch(e) { return []; }
+            },
+            async addGalleryItem(item) { try { const docRef = await db.collection('gallery').add(item); return { id: docRef.id, ...item }; } catch(e) { return null; } },
+            async deleteGalleryItem(id) { try { await db.collection('gallery').doc(id).delete(); return true; } catch(e) { return false; } },
+            
+            // Socials
+            async getSocials() {
+                try { const snapshot = await db.collection('socials').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
+                catch(e) { return []; }
+            },
+            async addSocial(social) { try { const docRef = await db.collection('socials').add(social); return { id: docRef.id, ...social }; } catch(e) { return null; } },
+            async deleteSocial(id) { try { await db.collection('socials').doc(id).delete(); return true; } catch(e) { return false; } },
+
+            // Bookings (Calendario)
+            async getBookings() {
+                try { const snapshot = await db.collection('bookings').orderBy('date', 'asc').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
+                catch(e) { return mockBookings; } 
+            },
+            async addBooking(b) {
+                try { const docRef = await db.collection('bookings').add(b); return { id: docRef.id, ...b }; } 
+                catch(e) { b.id = Date.now().toString(); mockBookings.push(b); return b; }
+            },
+
+            // Inventory (Depósito)
+            async getInventory() {
+                try { const snapshot = await db.collection('inventory').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
+                catch(e) { return mockInventory; }
+            },
+            async addProduct(p) {
+                try { const docRef = await db.collection('inventory').add(p); return { id: docRef.id, ...p }; } 
+                catch(e) { p.id = Date.now().toString(); mockInventory.push(p); return p; }
+            },
+            async updateProductStock(id, newStock) {
+                try { await db.collection('inventory').doc(id).update({ stock: newStock }); return true; } 
+                catch(e) { const p = mockInventory.find(i => i.id === id); if (p) p.stock = newStock; return true; }
+            }
+        };
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bg = type === 'success' ? 'bg-gray-900 text-white' : 'bg-red-500 text-white';
+            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+            
+            toast.className = `flex items-center p-4 rounded-xl shadow-lg pointer-events-auto toast-enter ${bg}`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5 mr-3"></i><span class="text-sm font-medium">${message}</span>`;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        let inputModalResolve = null;
+        function showInputModal(title, description, defaultValue = '', inputType = 'text') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-input-modal');
+                const content = document.getElementById('input-modal-content');
+                const titleEl = document.getElementById('input-modal-title');
+                const descEl = document.getElementById('input-modal-desc');
+                const textInputEl = document.getElementById('input-modal-field');
+                const fileInputEl = document.getElementById('input-modal-file-field');
+                
+                titleEl.textContent = title;
+                if (description) { descEl.textContent = description; descEl.classList.remove('hidden'); } 
+                else { descEl.classList.add('hidden'); }
+                
+                if (inputType === 'file') {
+                    textInputEl.classList.add('hidden');
+                    fileInputEl.classList.remove('hidden');
+                    fileInputEl.value = ''; 
+                } else {
+                    fileInputEl.classList.add('hidden');
+                    textInputEl.classList.remove('hidden');
+                    textInputEl.value = defaultValue;
+                }
+                
+                modal.dataset.inputType = inputType;
+                modal.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                    if (inputType !== 'file') textInputEl.focus();
+                });
+                inputModalResolve = resolve;
+            });
+        }
+
+        function closeInputModal(confirmed) {
+            const modal = document.getElementById('custom-input-modal');
+            const content = document.getElementById('input-modal-content');
+            const inputType = modal.dataset.inputType;
+            let returnValue = null;
+            
+            if (confirmed) {
+                if (inputType === 'file') returnValue = document.getElementById('input-modal-file-field').files[0];
+                else returnValue = document.getElementById('input-modal-field').value;
+            }
+            
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            modal.classList.remove('opacity-100');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (inputModalResolve) { inputModalResolve(returnValue); inputModalResolve = null; }
+            }, 200);
+        }
+
+        function navigate(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active'); el.style.opacity = '0';
+            });
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) { target.classList.add('active'); setTimeout(() => target.style.opacity = '1', 10); }
+            
+            document.querySelectorAll('#desktop-nav .nav-btn').forEach(btn => {
+                if (btn.dataset.target === viewId) { btn.classList.remove('border-transparent', 'text-gray-400', 'text-gray-800'); btn.classList.add('border-brand', 'text-brand'); } 
+                else { btn.classList.remove('border-brand', 'text-brand'); btn.classList.add('border-transparent', btn.classList.contains('admin-only')?'text-gray-800':'text-gray-400'); }
+            });
+
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                if (btn.dataset.target === viewId) { btn.classList.remove('text-gray-500','text-gray-800','bg-gray-100'); btn.classList.add('bg-brand/10', 'text-brand'); } 
+                else { btn.classList.remove('bg-brand/10', 'text-brand'); btn.classList.add(btn.classList.contains('admin-only')?'text-gray-800':'text-gray-500'); if(btn.classList.contains('admin-only')) btn.classList.add('bg-gray-100'); }
+            });
+
+            if (document.getElementById('mobile-menu').classList.contains('open')) toggleMobileMenu();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        let menuOpen = false;
+        function toggleMobileMenu() {
+            menuOpen = !menuOpen;
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            if (menuOpen) { mobileMenu.classList.add('open'); mobileMenuBtn.innerHTML = '<i data-lucide="x"></i>'; } 
+            else { mobileMenu.classList.remove('open'); mobileMenuBtn.innerHTML = '<i data-lucide="menu"></i>'; }
+            lucide.createIcons();
+        }
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+        async function checkOpenStatus() {
+            const settings = await api.getSettings();
+            const now = new Date(); const hour = now.getHours();
+            const isOpen = hour >= settings.openHour && hour < settings.closeHour;
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            
+            if (isOpen) { indicator.className = 'w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse'; text.textContent = 'Abierto ahora'; } 
+            else { indicator.className = 'w-2.5 h-2.5 rounded-full bg-gray-400'; text.textContent = 'Cerrado en este momento'; }
+        }
+
+        async function loadInitialData() {
+            const settings = await api.getSettings();
+            
+            document.getElementById('home-whatsapp-btn').href = `https://wa.me/${settings.whatsappNumber}`;
+            document.getElementById('config-wa-input').value = settings.whatsappNumber;
+            document.getElementById('config-open-hour').value = settings.openHour;
+            document.getElementById('config-close-hour').value = settings.closeHour;
+            document.getElementById('config-days-input').value = settings.workingDays || 'Lunes a Sábados';
+            document.getElementById('working-days-text').textContent = settings.workingDays || 'Lunes a Sábados';
+            
+            document.getElementById('location-address-text').textContent = settings.address;
+            document.getElementById('about-desc-text').textContent = settings.aboutText;
+            document.getElementById('about-profile-img').src = settings.profileImg;
+
+            if (settings.logoUrl) {
+                const img = document.getElementById('home-logo-img');
+                img.src = settings.logoUrl;
+                img.classList.remove('hidden');
+                document.getElementById('home-logo-fallback').classList.add('hidden');
+            }
+            
+            checkOpenStatus();
+            await renderServices();
+            await renderReviews();
+            await renderGallery();
+            await renderSocials();
+            await renderCalendar();
+            await renderInventory();
+        }
+
+        async function renderServices() {
+            const services = await api.getServices();
+            const container = document.getElementById('services-container');
+            if (services.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No hay servicios configurados.</div>`; return; }
+            container.innerHTML = services.map(s => `
+                <div class="bg-white rounded-3xl shadow-soft border border-gray-100 overflow-hidden group hover:shadow-lg transition-shadow">
+                    <div class="h-56 w-full relative overflow-hidden">
+                        <img src="${s.img}" alt="${s.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio'" />
+                        ${appState.isAdmin ? `<div class="absolute top-3 right-3 z-10"><button onclick="handleDeleteService('${s.id}')" class="p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>` : ''}
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="font-bebas text-2xl text-gray-900 tracking-wide">${s.title}</h3>
+                            <span class="font-bold text-gray-900 bg-brand/10 border border-brand/20 px-3 py-1 rounded-xl text-sm">${s.price}</span>
+                        </div>
+                        <div class="flex items-center text-brand-dark text-xs font-semibold uppercase tracking-wider mb-4"><i data-lucide="clock" class="w-3.5 h-3.5 mr-1.5"></i> ${s.time}</div>
+                        <div class="flex space-x-3 mt-5">
+                            <button class="flex-1 bg-gray-900 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-black transition-colors text-sm" onclick="startBooking('${s.title}')">Agendar</button>
+                            <button class="px-4 py-3 bg-gray-50 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors" onclick="toggleAccordion('desc-${s.id}', this)"><i data-lucide="info" class="w-4 h-4"></i></button>
+                        </div>
+                        <div id="desc-${s.id}" class="overflow-hidden transition-all duration-300 ease-in-out max-h-0 opacity-0"><div class="p-4 bg-gray-50 rounded-xl text-gray-600 text-sm leading-relaxed border border-gray-100 mt-4 font-light">${s.desc}</div></div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function renderReviews() {
+            const reviews = await api.getReviews();
+            const container = document.getElementById('reviews-container');
+            if (reviews.length === 0) { container.innerHTML = `<div class="text-center py-6 text-gray-400">Sé la primera en dejar una reseña.</div>`; return; }
+            container.innerHTML = reviews.map(r => `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:border-brand/30 transition-colors">
+                    <div class="flex items-center justify-between mb-3"><span class="font-semibold text-gray-900">${r.name}</span><span class="text-xs text-gray-400 font-medium">${r.date}</span></div>
+                    <div class="flex text-yellow-400 mb-3">${'<i data-lucide="star" class="w-4 h-4 fill-current"></i>'.repeat(r.rating)}${'<i data-lucide="star" class="w-4 h-4 text-gray-200"></i>'.repeat(5 - r.rating)}</div>
+                    <p class="text-gray-600 text-sm leading-relaxed italic">"${r.comment}"</p>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function renderGallery() {
+            const gallery = await api.getGallery();
+            const container = document.getElementById('gallery-grid-container');
+            if (gallery.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">Sube fotos a la galería.</div>`; return; }
+            container.innerHTML = gallery.map(g => `
+                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden group shadow-sm bg-gray-100">
+                    <img src="${g.url}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="Galeria Pam" onerror="this.src='https://placehold.co/600x800/f1f1f1/b2977d?text=Foto'" />
+                    ${appState.isAdmin ? `<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center backdrop-blur-sm"><button onclick="handleDeleteGallery('${g.id}')" class="p-3 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transform hover:scale-110 transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>` : ''}
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function renderSocials() {
+            const socials = await api.getSocials();
+            const container = document.getElementById('social-networks-container');
+            container.innerHTML = socials.map(soc => `
+                <div class="flex items-center group relative">
+                    <a href="${soc.url}" target="_blank" class="flex items-center space-x-2 bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-100 hover:border-brand hover:shadow-md transition-all">
+                        <i data-lucide="${soc.icon || 'globe'}" class="w-5 h-5 text-gray-700 group-hover:text-brand transition-colors"></i>
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-brand transition-colors">${soc.name}</span>
+                    </a>
+                    ${appState.isAdmin ? `<button onclick="handleDeleteSocial('${soc.id}')" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"><i data-lucide="x" class="w-3 h-3"></i></button>` : ''}
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function toggleAccordion(id, btnElement) {
+            const content = document.getElementById(id);
+            if (content.classList.contains('max-h-0')) { content.classList.remove('max-h-0', 'opacity-0'); content.classList.add('max-h-[500px]', 'opacity-100'); btnElement.classList.add('bg-gray-100'); } 
+            else { content.classList.add('max-h-0', 'opacity-0'); content.classList.remove('max-h-[500px]', 'opacity-100'); btnElement.classList.remove('bg-gray-100'); }
+        }
+
+        let selectedService = ''; let selectedDate = ''; let selectedTime = '';
+
+        function startBooking(serviceName) {
+            selectedService = serviceName;
+            document.getElementById('summary-service-name').textContent = serviceName;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('booking-date').min = today;
+            
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('opacity-100'), 10);
+            goToBookingStep(1);
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function goToBookingStep(step) {
+            if (step === 1) { document.getElementById('b-step-1').classList.remove('hidden'); document.getElementById('b-step-2').classList.add('hidden'); } 
+            else {
+                if (!selectedDate || !selectedTime) { showToast('Por favor selecciona fecha y hora', 'error'); return; }
+                document.getElementById('summary-date-time').textContent = `${selectedDate} a las ${selectedTime} hs`;
+                document.getElementById('b-step-1').classList.add('hidden'); document.getElementById('b-step-2').classList.remove('hidden');
+            }
+        }
+
+        function selectTimeSlot(time) {
+            selectedTime = time;
+            document.querySelectorAll('.time-slot-btn').forEach(b => { b.classList.remove('bg-brand', 'text-white', 'border-brand'); b.classList.add('text-gray-600', 'border-gray-200'); });
+            event.target.classList.remove('text-gray-600', 'border-gray-200'); event.target.classList.add('bg-brand', 'text-white', 'border-brand');
+            selectedDate = document.getElementById('booking-date').value;
+            checkBookingStep1Ready();
+        }
+
+        document.getElementById('booking-date').addEventListener('change', (e) => { selectedDate = e.target.value; checkBookingStep1Ready(); });
+
+        function checkBookingStep1Ready() {
+            const nextBtn = document.getElementById('btn-next-step');
+            if (selectedDate && selectedTime) {
+                nextBtn.disabled = false; nextBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                nextBtn.classList.add('bg-gray-900', 'text-white', 'hover:bg-black', 'shadow-md');
+            }
+        }
+
+        async function confirmBooking() {
+            const name = document.getElementById('client-name').value;
+            const phone = document.getElementById('client-phone').value;
+            if (!name || !phone) { showToast('Por favor completa los campos obligatorios', 'error'); return; }
+
+            const bookingData = { name, phone, service: selectedService, date: selectedDate, time: selectedTime, timestamp: Date.now() };
+            await api.addBooking(bookingData);
+            await renderCalendar(); 
+
+            const settings = await api.getSettings();
+            const message = `Hola Pam! ✨ Quiero reservar un turno.\n\n*Servicio:* ${selectedService}\n*Fecha:* ${selectedDate}\n*Hora:* ${selectedTime} hs\n*Nombre:* ${name}`;
+            const waUrl = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(message)}`;
+            
+            window.open(waUrl, '_blank');
+            closeBookingModal();
+            showToast('Turno registrado. Redirigiendo a WhatsApp...', 'success');
+        }
+
+        let currentReviewRating = 5;
+        function toggleReviewModal() { document.getElementById('review-form-card').classList.toggle('hidden'); }
+
+        document.querySelectorAll('.star-rate').forEach(star => {
+            star.addEventListener('click', (e) => {
+                currentReviewRating = parseInt(e.target.dataset.rating || 5);
+                document.querySelectorAll('.star-rate').forEach((s, idx) => {
+                    if (idx < currentReviewRating) { s.classList.add('text-yellow-400', 'fill-current'); s.classList.remove('text-gray-200'); } 
+                    else { s.classList.remove('text-yellow-400', 'fill-current'); s.classList.add('text-gray-200'); }
+                });
+            });
+        });
+
+        async function submitReview() {
+            const name = document.getElementById('review-name').value;
+            const comment = document.getElementById('review-comment').value;
+            if (!name || !comment) { showToast('Falta nombre o comentario', 'error'); return; }
+
+            await api.addReview({ name, rating: currentReviewRating, date: new Date().toISOString(), comment });
+            await renderReviews();
+            toggleReviewModal();
+            document.getElementById('review-name').value = ''; document.getElementById('review-comment').value = '';
+            showToast('¡Gracias por tu reseña!', 'success');
+        }
+
+        let pressTimer = null;
+        const secretTrigger = document.getElementById('secret-admin-trigger');
+
+        const startPress = (e) => {
+            pressTimer = setTimeout(() => {
+                if (appState.isAdmin) {
+                    appState.isAdmin = false;
+                    updateAdminUIMode();
+                    showToast('Modo usuario activado.', 'success');
+                } else {
+                    document.getElementById('admin-login-modal').classList.remove('hidden');
+                }
+            }, 5000);
+        };
+        const cancelPress = () => { if (pressTimer) clearTimeout(pressTimer); };
+
+        secretTrigger.addEventListener('mousedown', startPress);
+        secretTrigger.addEventListener('mouseup', cancelPress);
+        secretTrigger.addEventListener('mouseleave', cancelPress);
+        secretTrigger.addEventListener('touchstart', startPress, {passive: true});
+        secretTrigger.addEventListener('touchend', cancelPress);
+
+        function closeAdminLoginModal() {
+            document.getElementById('admin-login-modal').classList.add('hidden');
+            document.getElementById('admin-user-input').value = '';
+            document.getElementById('admin-pass-input').value = '';
+            document.getElementById('login-error-msg').classList.add('hidden');
+        }
+
+        function verifyAdminLogin() {
+            const u = document.getElementById('admin-user-input').value;
+            const p = document.getElementById('admin-pass-input').value;
+            if (u === 'admin' && p === '123') {
+                appState.isAdmin = true;
+                closeAdminLoginModal();
+                updateAdminUIMode();
+                showToast('Sesión iniciada como Administrador', 'success');
+            } else { document.getElementById('login-error-msg').classList.remove('hidden'); }
+        }
+
+        function updateAdminUIMode() {
+            document.querySelectorAll('.admin-only').forEach(el => {
+                if (appState.isAdmin) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+            const badge = document.getElementById('admin-badge-home');
+            if (badge) {
+                if (appState.isAdmin) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
+            }
+            renderServices(); renderGallery(); renderSocials();
+        }
+
+        async function updateLogoImage() {
+            const fileInput = document.getElementById('input-logo-file');
+            if(fileInput.files.length > 0) {
+                showToast('Subiendo logo a Firebase...', 'success');
+                const imgUrl = await api.uploadImage(fileInput.files[0], 'brand');
+                if (imgUrl) {
+                    await api.updateSetting('logoUrl', imgUrl);
+                    applyLogo(imgUrl);
+                    showToast('Logo actualizado', 'success');
+                }
+            } else { showToast('Selecciona un archivo primero', 'error'); }
+        }
+
+        async function updateLogoUrlFallback() {
+            const url = document.getElementById('input-logo-url-fallback').value;
+            if(url) {
+                await api.updateSetting('logoUrl', url);
+                applyLogo(url);
+                showToast('Logo forzado por URL guardado', 'success');
+                document.getElementById('input-logo-url-fallback').value = '';
+            }
+        }
+
+        function applyLogo(url) {
+            const img = document.getElementById('home-logo-img');
+            const fallback = document.getElementById('home-logo-fallback');
+            img.src = url;
+            img.classList.remove('hidden');
+            fallback.classList.add('hidden');
+        }
+
+        async function saveAdminSettings() {
+            const wa = document.getElementById('config-wa-input').value;
+            const days = document.getElementById('config-days-input').value;
+            const op = parseInt(document.getElementById('config-open-hour').value);
+            const cl = parseInt(document.getElementById('config-close-hour').value);
+            
+            await api.updateSetting('whatsappNumber', wa);
+            await api.updateSetting('workingDays', days);
+            await api.updateSetting('openHour', op);
+            await api.updateSetting('closeHour', cl);
+            
+            document.getElementById('home-whatsapp-btn').href = `https://wa.me/${wa}`;
+            document.getElementById('working-days-text').textContent = days;
+            checkOpenStatus();
+            showToast('Ajustes de negocio guardados', 'success');
+        }
+
+        async function promptEditProfilePic() {
+            const file = await showInputModal('Actualizar Foto de Perfil', 'Selecciona una imagen de tu dispositivo:', '', 'file');
+            if (file) {
+                showToast('Subiendo foto de perfil...', 'success');
+                const imgUrl = await api.uploadImage(file, 'profile');
+                if (imgUrl) {
+                    await api.updateSetting('profileImg', imgUrl);
+                    document.getElementById('about-profile-img').src = imgUrl;
+                    showToast('Foto de perfil actualizada', 'success');
+                }
+            } else {
+                // Fallback URL prompt if file modal canceled but they might want URL
+                const url = prompt('Opcional: Pega el enlace web (URL) de tu foto:');
+                if(url) {
+                    await api.updateSetting('profileImg', url);
+                    document.getElementById('about-profile-img').src = url;
+                }
+            }
+        }
+
+        async function promptEditAbout() {
+            const currentSettings = await api.getSettings();
+            const text = await showInputModal('Editar Biografía', 'Escribe tu nueva biografía:', currentSettings.aboutText);
+            if (text) {
+                await api.updateSetting('aboutText', text);
+                document.getElementById('about-desc-text').textContent = text;
+                showToast('Biografía actualizada', 'success');
+            }
+        }
+
+        async function promptAddGalleryPhoto() {
+            const file = await showInputModal('Nueva Foto a Galería', 'Selecciona la imagen que deseas subir:', '', 'file');
+            if (file) {
+                showToast('Subiendo foto a Firebase...', 'success');
+                const imgUrl = await api.uploadImage(file, 'gallery');
+                if (imgUrl) {
+                    await api.addGalleryItem({ url: imgUrl, timestamp: Date.now() });
+                    await renderGallery();
+                    showToast('Foto agregada con éxito', 'success');
+                }
+            } else {
+                 const url = prompt('Opcional: Pega el enlace web (URL) de tu foto para la galería:');
+                 if(url) {
+                    await api.addGalleryItem({ url: url, timestamp: Date.now() });
+                    await renderGallery();
+                 }
+            }
+        }
+
+        async function handleDeleteGallery(id) { await api.deleteGalleryItem(id); await renderGallery(); showToast('Foto eliminada', 'success'); }
+
+        async function promptAddService() {
+            const title = await showInputModal('Nuevo Servicio', 'Título del servicio:');
+            if (!title) return;
+            const price = await showInputModal('Precio', 'Ej: $20.000');
+            const time = await showInputModal('Duración', 'Ej: 60 min');
+            const desc = await showInputModal('Descripción', 'Breve detalle del servicio:');
+            
+            let finalImgUrl = 'https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio';
+            const file = await showInputModal('Imagen Representativa', 'Selecciona una imagen para el servicio:', '', 'file');
+            if (file) {
+                showToast('Subiendo imagen del servicio...', 'success');
+                const uploadedUrl = await api.uploadImage(file, 'services');
+                if (uploadedUrl) finalImgUrl = uploadedUrl;
+            } else {
+                const url = prompt('Opcional: Pega el enlace web (URL) para la foto del servicio:');
+                if(url) finalImgUrl = url;
+            }
+
+            await api.addService({ title, price, time: time||'Consultar', img: finalImgUrl, desc: desc||'', timestamp: Date.now() });
+            await renderServices();
+            showToast('Servicio guardado', 'success');
+        }
+
+        async function handleDeleteService(id) { await api.deleteService(id); await renderServices(); showToast('Servicio eliminado', 'success'); }
+
+        async function promptAddSocial() {
+            const name = await showInputModal('Red Social', 'Nombre (ej: Facebook):'); if (!name) return;
+            const url = await showInputModal('URL del perfil', 'Ej: https://facebook.com/tu-perfil');
+            const icon = await showInputModal('Icono', 'Escribe: instagram, facebook, twitter, video, globe', 'globe');
+            await api.addSocial({ name, url, icon }); await renderSocials(); showToast('Red social añadida', 'success');
+        }
+
+        async function handleDeleteSocial(id) { await api.deleteSocial(id); await renderSocials(); showToast('Red social removida', 'success'); }
+
+        async function promptEditLocation() {
+            const currentSettings = await api.getSettings();
+            const addr = await showInputModal('Editar Dirección', 'Ingresa la nueva dirección:', currentSettings.address);
+            if (addr) {
+                await api.updateSetting('address', addr);
+                document.getElementById('location-address-text').textContent = addr;
+                showToast('Dirección actualizada', 'success');
+            }
+        }
+
+        let calCurrentMonth = new Date().getMonth();
+        let calCurrentYear = new Date().getFullYear();
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        async function renderCalendar() {
+            document.getElementById('calendar-month-year').textContent = `${monthNames[calCurrentMonth]} ${calCurrentYear}`;
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+
+            const firstDay = new Date(calCurrentYear, calCurrentMonth, 1).getDay();
+            const daysInMonth = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
+            const bookings = await api.getBookings();
+
+            for (let i = 0; i < firstDay; i++) { grid.innerHTML += `<div class="p-2"></div>`; }
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${calCurrentYear}-${String(calCurrentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const dayBookings = bookings.filter(b => b.date === dateStr);
+                const hasBookings = dayBookings.length > 0;
+                const dotHtml = hasBookings ? `<div class="w-1.5 h-1.5 bg-brand rounded-full mx-auto mt-1 shadow-sm"></div>` : '';
+                const baseClass = hasBookings ? 'bg-brand/10 border-brand/40 text-gray-900 cursor-pointer hover:bg-brand/20' : 'bg-gray-50 border-gray-100 text-gray-400';
+
+                grid.innerHTML += `
+                    <div onclick="${hasBookings ? `openAgendaModal('${dateStr}')` : ''}" class="aspect-square flex flex-col justify-center items-center rounded-xl border ${baseClass} transition-colors">
+                        <span class="font-bold text-sm">${i}</span>
+                        ${dotHtml}
+                    </div>
+                `;
+            }
+        }
+
+        function changeCalendarMonth(dir) {
+            calCurrentMonth += dir;
+            if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; }
+            if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; }
+            renderCalendar();
+        }
+
+        async function openAgendaModal(dateStr) {
+            const bookings = await api.getBookings();
+            const dayBookings = bookings.filter(b => b.date === dateStr);
+            const [y, m, d] = dateStr.split('-');
+            document.getElementById('agenda-modal-date').textContent = `Turnos del ${d}/${m}`;
+            
+            const list = document.getElementById('agenda-list');
+            list.innerHTML = dayBookings.sort((a,b) => a.time.localeCompare(b.time)).map(b => `
+                <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-gray-900 text-sm">${b.name}</p>
+                        <p class="text-xs text-gray-500 mt-1 flex items-center font-medium"><i data-lucide="clock" class="w-3.5 h-3.5 mr-1 text-brand"></i> ${b.time} hs</p>
+                        <p class="text-xs text-gray-400 mt-0.5">${b.service}</p>
+                    </div>
+                    <a href="https://wa.me/${b.phone.replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors shadow-sm">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+            const modal = document.getElementById('agenda-modal');
+            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
+        }
+
+        function closeAgendaModal() {
+            const modal = document.getElementById('agenda-modal');
+            modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        async function renderInventory() {
+            const items = await api.getInventory();
+            const container = document.getElementById('inventory-container');
+            if (items.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No hay productos en inventario.</div>`; return; }
+            
+            container.innerHTML = items.map(p => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative group">
+                    <h4 class="font-bold text-gray-900 text-base mb-1 truncate">${p.title}</h4>
+                    <p class="text-[11px] text-brand font-bold uppercase tracking-widest mb-4 font-mono">${p.code} ${p.barcode ? `| EAN: ${p.barcode}` : ''}</p>
+                    
+                    <div class="flex justify-between items-end mb-4">
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Costo / Venta</p>
+                            <p class="text-sm font-semibold text-gray-700">$${p.cost || 0} <span class="text-gray-300 mx-1">-</span> $${p.price || 0}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider mb-0.5">Stock</p>
+                            <p class="text-3xl font-bebas ${p.stock <= 2 ? 'text-red-500' : 'text-gray-900'} leading-none">${p.stock}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex border-t border-gray-100 pt-4 space-x-2">
+                        <button onclick="changeStock('${p.id}', -1)" class="flex-1 bg-red-50 text-red-600 py-2 rounded-xl text-sm font-bold hover:bg-red-500 hover:text-white transition-colors">-1</button>
+                        <button onclick="changeStock('${p.id}', 1)" class="flex-1 bg-green-50 text-green-600 py-2 rounded-xl text-sm font-bold hover:bg-green-500 hover:text-white transition-colors">+1</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleProductModal() {
+            const modal = document.getElementById('product-modal');
+            if (modal.classList.contains('hidden')) {
+                ['prod-title','prod-code','prod-barcode','prod-cost','prod-price'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('prod-stock').value = '0';
+                modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
+            } else {
+                modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        async function saveProduct() {
+            const p = {
+                title: document.getElementById('prod-title').value,
+                code: document.getElementById('prod-code').value,
+                barcode: document.getElementById('prod-barcode').value,
+                cost: parseFloat(document.getElementById('prod-cost').value || 0),
+                price: parseFloat(document.getElementById('prod-price').value || 0),
+                stock: parseInt(document.getElementById('prod-stock').value || 0)
+            };
+            if(!p.title || !p.code) { showToast('Título y Código son obligatorios', 'error'); return; }
+            await api.addProduct(p); await renderInventory(); toggleProductModal(); showToast('Producto agregado al inventario', 'success');
+        }
+
+        async function changeStock(id, amount) {
+            const items = await api.getInventory();
+            const prod = items.find(i => i.id === id);
+            if(prod) {
+                let newStock = prod.stock + amount;
+                if(newStock < 0) newStock = 0;
+                await api.updateProductStock(id, newStock); await renderInventory();
+            }
+        }
+
+        // Init
+        window.addEventListener('DOMContentLoaded', loadInitialData);
+    </script>
+</body>
+</html>
