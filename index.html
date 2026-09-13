@@ -1052,7 +1052,8 @@
 
         document.querySelectorAll('.star-rate').forEach(star => {
             star.addEventListener('click', (e) => {
-                currentReviewRating = parseInt(e.target.dataset.rating || 5);
+                // Fix applied here: using currentTarget to get the rating from the <i> element even if a child <path> is clicked
+                currentReviewRating = parseInt(e.currentTarget.dataset.rating || 5);
                 document.querySelectorAll('.star-rate').forEach((s, idx) => {
                     if (idx < currentReviewRating) { s.classList.add('text-yellow-400', 'fill-current'); s.classList.remove('text-gray-200'); } 
                     else { s.classList.remove('text-yellow-400', 'fill-current'); s.classList.add('text-gray-200'); }
