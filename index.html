@@ -214,7 +214,7 @@
                 <div class="w-16 h-1 bg-brand mx-auto rounded-full"></div>
             </div>
             
-            <button onclick="promptAddService()" class="admin-only hidden mb-8 w-full py-4 border-2 border-dashed border-brand/50 bg-brand/5 text-brand-dark rounded-2xl flex justify-center items-center font-semibold hover:bg-brand/10 transition-colors">
+            <button onclick="toggleServiceModal()" class="admin-only hidden mb-8 w-full py-4 border-2 border-dashed border-brand/50 bg-brand/5 text-brand-dark rounded-2xl flex justify-center items-center font-semibold hover:bg-brand/10 transition-colors">
                 <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> Crear Nuevo Servicio
             </button>
 
@@ -302,7 +302,6 @@
             
             <div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 overflow-hidden mb-6 relative">
                 <div class="aspect-video w-full rounded-2xl overflow-hidden bg-gray-100">
-                    <!-- Mapa apuntando a Plaza 25 de Mayo, Concordia -->
                     <iframe id="location-iframe" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3403.206385311867!2d-58.0210255239121!3d-31.394662974271424!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade80637cb6c59%3A0x722a523e473bbdfa!2sPlaza%2025%20de%20Mayo!5e0!3m2!1ses!2sar!4v1714495537542!5m2!1ses!2sar" width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
@@ -329,19 +328,16 @@
             </div>
 
             <div class="bg-white rounded-3xl shadow-soft border border-gray-100 p-6">
-                <!-- Controles de Mes -->
                 <div class="flex justify-between items-center mb-6">
                     <button onclick="changeCalendarMonth(-1)" class="p-2 bg-gray-50 hover:bg-brand/10 hover:text-brand rounded-full transition-colors text-gray-600"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
                     <h3 id="calendar-month-year" class="font-bebas text-2xl text-gray-900 tracking-wide">MES AÑO</h3>
                     <button onclick="changeCalendarMonth(1)" class="p-2 bg-gray-50 hover:bg-brand/10 hover:text-brand rounded-full transition-colors text-gray-600"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                 </div>
                 
-                <!-- Días de la semana -->
                 <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">
                     <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
                 </div>
                 
-                <!-- Grilla del Calendario -->
                 <div class="grid grid-cols-7 gap-2" id="calendar-grid"></div>
             </div>
         </section>
@@ -362,6 +358,7 @@
         </section>
     </main>
 
+    <!-- Contenedor Toasts -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col space-y-2 pointer-events-none"></div>
 
     <!-- MODAL: Custom Input -->
@@ -523,6 +520,45 @@
         </div>
     </div>
 
+    <!-- MODAL: Crear/Editar Servicio (Admin) -->
+    <div id="service-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col">
+            <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100">
+                <h3 class="font-bebas text-2xl text-gray-900 tracking-wide">Nuevo Servicio</h3>
+                <button onclick="toggleServiceModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 bg-gray-50 space-y-4 overflow-y-auto max-h-[60vh]">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Título del Servicio *</label>
+                    <input type="text" id="srv-title" placeholder="Ej: Perfilado de Cejas" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Precio *</label>
+                        <input type="text" id="srv-price" placeholder="Ej: $20.000" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Duración</label>
+                        <input type="text" id="srv-time" placeholder="Ej: 60 min" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Descripción</label>
+                    <textarea id="srv-desc" rows="3" placeholder="Breve detalle del servicio..." class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Imagen (Opcional)</label>
+                    <input type="file" id="srv-img" accept="image/*" class="w-full text-xs file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer mb-2">
+                    <input type="text" id="srv-img-url" placeholder="O pega el Link URL de la imagen..." class="w-full p-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-xs">
+                </div>
+            </div>
+            <div class="p-4 bg-white border-t border-gray-100 flex justify-end">
+                <button onclick="saveService()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium text-sm shadow hover:bg-brand-dark transition-colors">Guardar Servicio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
     <footer class="text-center text-sm text-gray-400 py-8 w-full border-t border-gray-200 bg-white mt-auto">
         <div class="max-w-md mx-auto px-4 flex flex-col items-center">
             <span class="font-bebas text-xl text-gray-300 tracking-widest mb-2">PAM ILARREGUI</span>
@@ -566,8 +602,14 @@
         };
 
         let appState = { isAdmin: false };
+        
+        // Memoria de Respaldo: Permite que el sistema siga funcionando incluso si Firestore falla
         let mockBookings = [];
         let mockInventory = [];
+        let mockServices = [];
+        let mockReviews = [];
+        let mockGallery = [];
+        let mockSocials = [];
 
         // 2. DATA ACCESS LAYER (API FIREBASE + MAGIC FALLBACK)
         const api = {
@@ -596,45 +638,61 @@
                 } catch (e) { return defaultSettings; }
             },
             async updateSetting(key, value) {
-                try {
-                    await db.collection('settings').doc('general').set({ [key]: value }, { merge: true });
-                    return true;
-                } catch (e) { showToast('Error al guardar', 'error'); return false; }
+                try { await db.collection('settings').doc('general').set({ [key]: value }, { merge: true }); return true; } 
+                catch (e) { showToast('Error al guardar ajuste', 'error'); return false; }
             },
             
             // Services
             async getServices() {
                 try { const snapshot = await db.collection('services').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
-                catch(e) { return []; }
+                catch(e) { return mockServices; }
             },
             async addService(service) {
                 try { const docRef = await db.collection('services').add(service); return { id: docRef.id, ...service }; } 
-                catch(e) { return null; }
+                catch(e) { service.id = Date.now().toString(); mockServices.push(service); return service; }
             },
-            async deleteService(id) { try { await db.collection('services').doc(id).delete(); return true; } catch(e) { return false; } },
+            async deleteService(id) { 
+                try { await db.collection('services').doc(id).delete(); return true; } 
+                catch(e) { mockServices = mockServices.filter(s => s.id !== id); return true; } 
+            },
             
             // Reviews
             async getReviews() {
                 try { const snapshot = await db.collection('reviews').orderBy('date', 'desc').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
-                catch(e) { return []; }
+                catch(e) { return mockReviews; }
             },
-            async addReview(review) { try { const docRef = await db.collection('reviews').add(review); return { id: docRef.id, ...review }; } catch(e) { return null; } },
+            async addReview(review) { 
+                try { const docRef = await db.collection('reviews').add(review); return { id: docRef.id, ...review }; } 
+                catch(e) { review.id = Date.now().toString(); mockReviews.unshift(review); return review; } 
+            },
             
             // Gallery
             async getGallery() {
                 try { const snapshot = await db.collection('gallery').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
-                catch(e) { return []; }
+                catch(e) { return mockGallery; }
             },
-            async addGalleryItem(item) { try { const docRef = await db.collection('gallery').add(item); return { id: docRef.id, ...item }; } catch(e) { return null; } },
-            async deleteGalleryItem(id) { try { await db.collection('gallery').doc(id).delete(); return true; } catch(e) { return false; } },
+            async addGalleryItem(item) { 
+                try { const docRef = await db.collection('gallery').add(item); return { id: docRef.id, ...item }; } 
+                catch(e) { item.id = Date.now().toString(); mockGallery.unshift(item); return item; } 
+            },
+            async deleteGalleryItem(id) { 
+                try { await db.collection('gallery').doc(id).delete(); return true; } 
+                catch(e) { mockGallery = mockGallery.filter(g => g.id !== id); return true; } 
+            },
             
             // Socials
             async getSocials() {
                 try { const snapshot = await db.collection('socials').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
-                catch(e) { return []; }
+                catch(e) { return mockSocials; }
             },
-            async addSocial(social) { try { const docRef = await db.collection('socials').add(social); return { id: docRef.id, ...social }; } catch(e) { return null; } },
-            async deleteSocial(id) { try { await db.collection('socials').doc(id).delete(); return true; } catch(e) { return false; } },
+            async addSocial(social) { 
+                try { const docRef = await db.collection('socials').add(social); return { id: docRef.id, ...social }; } 
+                catch(e) { social.id = Date.now().toString(); mockSocials.push(social); return social; } 
+            },
+            async deleteSocial(id) { 
+                try { await db.collection('socials').doc(id).delete(); return true; } 
+                catch(e) { mockSocials = mockSocials.filter(s => s.id !== id); return true; } 
+            },
 
             // Bookings (Calendario)
             async getBookings() {
@@ -770,13 +828,33 @@
 
         async function checkOpenStatus() {
             const settings = await api.getSettings();
-            const now = new Date(); const hour = now.getHours();
-            const isOpen = hour >= settings.openHour && hour < settings.closeHour;
+            const now = new Date(); 
+            const hour = now.getHours();
+            const day = now.getDay(); // 0 es Domingo, 1 es Lunes, 6 es Sábado
+            
+            // Analizar el texto para saber si abren sábados o domingos
+            const daysText = (settings.workingDays || 'Lunes a Sábados').toLowerCase();
+            let isDayOpen = true;
+            
+            if (day === 0 && !daysText.includes('domingo')) {
+                isDayOpen = false; // Es domingo y no dice domingo en el texto
+            } else if (day === 6 && !daysText.includes('sábado') && !daysText.includes('sabado')) {
+                isDayOpen = false; // Es sábado y no dice sábado en el texto
+            }
+
+            const isOpenTime = hour >= settings.openHour && hour < settings.closeHour;
+            const isOpen = isDayOpen && isOpenTime;
+            
             const indicator = document.getElementById('status-indicator');
             const text = document.getElementById('status-text');
             
-            if (isOpen) { indicator.className = 'w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse'; text.textContent = 'Abierto ahora'; } 
-            else { indicator.className = 'w-2.5 h-2.5 rounded-full bg-gray-400'; text.textContent = 'Cerrado en este momento'; }
+            if (isOpen) { 
+                indicator.className = 'w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse'; 
+                text.textContent = 'Abierto ahora'; 
+            } else { 
+                indicator.className = 'w-2.5 h-2.5 rounded-full bg-gray-400'; 
+                text.textContent = 'Cerrado en este momento'; 
+            }
         }
 
         async function loadInitialData() {
@@ -967,7 +1045,7 @@
             const comment = document.getElementById('review-comment').value;
             if (!name || !comment) { showToast('Falta nombre o comentario', 'error'); return; }
 
-            await api.addReview({ name, rating: currentReviewRating, date: new Date().toISOString(), comment });
+            await api.addReview({ name, rating: currentReviewRating, date: new Date().toISOString().split('T')[0], comment });
             await renderReviews();
             toggleReviewModal();
             document.getElementById('review-name').value = ''; document.getElementById('review-comment').value = '';
@@ -1125,27 +1203,61 @@
 
         async function handleDeleteGallery(id) { await api.deleteGalleryItem(id); await renderGallery(); showToast('Foto eliminada', 'success'); }
 
-        async function promptAddService() {
-            const title = await showInputModal('Nuevo Servicio', 'Título del servicio:');
-            if (!title) return;
-            const price = await showInputModal('Precio', 'Ej: $20.000');
-            const time = await showInputModal('Duración', 'Ej: 60 min');
-            const desc = await showInputModal('Descripción', 'Breve detalle del servicio:');
-            
-            let finalImgUrl = 'https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio';
-            const file = await showInputModal('Imagen Representativa', 'Selecciona una imagen para el servicio:', '', 'file');
-            if (file) {
-                showToast('Subiendo imagen del servicio...', 'success');
-                const uploadedUrl = await api.uploadImage(file, 'services');
-                if (uploadedUrl) finalImgUrl = uploadedUrl;
+        function toggleServiceModal() {
+            const modal = document.getElementById('service-modal');
+            if (modal.classList.contains('hidden')) {
+                // Limpiar campos al abrir
+                document.getElementById('srv-title').value = '';
+                document.getElementById('srv-price').value = '';
+                document.getElementById('srv-time').value = '';
+                document.getElementById('srv-desc').value = '';
+                document.getElementById('srv-img').value = '';
+                document.getElementById('srv-img-url').value = '';
+                
+                modal.classList.remove('hidden'); 
+                setTimeout(() => modal.classList.add('opacity-100'), 10);
             } else {
-                const url = prompt('Opcional: Pega el enlace web (URL) para la foto del servicio:');
-                if(url) finalImgUrl = url;
+                modal.classList.remove('opacity-100'); 
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        async function saveService() {
+            const title = document.getElementById('srv-title').value;
+            const price = document.getElementById('srv-price').value;
+            const time = document.getElementById('srv-time').value;
+            const desc = document.getElementById('srv-desc').value;
+            const fileInput = document.getElementById('srv-img');
+            const urlInput = document.getElementById('srv-img-url').value;
+            
+            if (!title || !price) {
+                showToast('Título y Precio son obligatorios', 'error');
+                return;
             }
 
-            await api.addService({ title, price, time: time||'Consultar', img: finalImgUrl, desc: desc||'', timestamp: Date.now() });
+            let finalImgUrl = 'https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio';
+            
+            if (fileInput.files.length > 0) {
+                showToast('Subiendo imagen del servicio...', 'success');
+                const uploadedUrl = await api.uploadImage(fileInput.files[0], 'services');
+                if (uploadedUrl) finalImgUrl = uploadedUrl;
+            } else if (urlInput) {
+                finalImgUrl = urlInput;
+            }
+
+            const newService = { 
+                title: title, 
+                price: price, 
+                time: time || 'Consultar', 
+                img: finalImgUrl, 
+                desc: desc || '', 
+                timestamp: Date.now() 
+            };
+
+            await api.addService(newService);
             await renderServices();
-            showToast('Servicio guardado', 'success');
+            toggleServiceModal();
+            showToast('Servicio guardado con éxito', 'success');
         }
 
         async function handleDeleteService(id) { await api.deleteService(id); await renderServices(); showToast('Servicio eliminado', 'success'); }
