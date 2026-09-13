@@ -2,7 +2,7 @@
 <html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PamIlarregui | Servicios Make Up & Beauty</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -70,6 +70,11 @@
         .toast-leave { animation: toastSlideOut 0.3s ease-in forwards; }
         @keyframes toastSlideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+        /* FIX: Prevents iOS Safari auto-zoom on inputs which breaks layout on mobile */
+        @media screen and (max-width: 768px) {
+            input, textarea, select { font-size: 16px !important; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col relative pb-20 selection:bg-brand selection:text-white">
@@ -103,6 +108,7 @@
             </div>
         </div>
 
+        <!-- Mobile Nav Menu -->
         <div id="mobile-menu" class="md:hidden absolute top-[100%] w-full bg-white/95 backdrop-blur-md shadow-xl border-t border-gray-100 z-50">
             <div class="pt-2 pb-4 space-y-1 px-2">
                 <button onclick="navigate('home')" class="mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-medium bg-brand/10 text-brand" data-target="home">Inicio</button>
@@ -128,6 +134,7 @@
                     <i data-lucide="shield-check" class="w-3 h-3 mr-1"></i> Admin Activo
                 </div>
 
+                <!-- Logo Container: Modified for maximum size visibility -->
                 <div class="h-56 sm:h-64 bg-gradient-to-br from-brand/20 to-brand/5 w-full relative overflow-hidden flex flex-col items-center justify-center p-2">
                     <div class="relative z-10 flex flex-col items-center w-full h-full justify-center">
                         <img id="home-logo-img" src="./logo.png" alt="Pam Ilarregui Logo" class="w-[95%] h-[95%] object-contain hidden drop-shadow-md transition-all" onerror="this.classList.add('hidden'); document.getElementById('home-logo-fallback').classList.remove('hidden');">
@@ -377,7 +384,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Turnos (Booking Flow) -->
+    <!-- MODAL: Turnos (Booking Flow) - CORREGIDO -->
     <div id="booking-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
         <div class="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden fade-in max-h-[90vh] flex flex-col">
             <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100 relative z-10">
@@ -395,12 +402,12 @@
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">2. Horarios Disponibles</label>
                         <div class="grid grid-cols-3 gap-3" id="time-slots-container">
-                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">10:00</button>
-                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">11:30</button>
-                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">14:00</button>
-                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">15:30</button>
-                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">17:00</button>
-                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">18:30</button>
+                            <button onclick="selectTimeSlot('10:00', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">10:00</button>
+                            <button onclick="selectTimeSlot('11:30', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">11:30</button>
+                            <button onclick="selectTimeSlot('14:00', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">14:00</button>
+                            <button onclick="selectTimeSlot('15:30', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">15:30</button>
+                            <button onclick="selectTimeSlot('17:00', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">17:00</button>
+                            <button onclick="selectTimeSlot('18:30', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">18:30</button>
                         </div>
                     </div>
 
@@ -991,10 +998,15 @@
             }
         }
 
-        function selectTimeSlot(time) {
+        function selectTimeSlot(time, element) {
             selectedTime = time;
-            document.querySelectorAll('.time-slot-btn').forEach(b => { b.classList.remove('bg-brand', 'text-white', 'border-brand'); b.classList.add('text-gray-600', 'border-gray-200'); });
-            event.target.classList.remove('text-gray-600', 'border-gray-200'); event.target.classList.add('bg-brand', 'text-white', 'border-brand');
+            document.querySelectorAll('.time-slot-btn').forEach(b => { 
+                b.classList.remove('bg-brand', 'text-white', 'border-brand'); 
+                b.classList.add('text-gray-600', 'border-gray-200', 'hover:border-brand', 'hover:text-brand'); 
+            });
+            const btn = element || event.target;
+            btn.classList.remove('text-gray-600', 'border-gray-200', 'hover:border-brand', 'hover:text-brand'); 
+            btn.classList.add('bg-brand', 'text-white', 'border-brand');
             selectedDate = document.getElementById('booking-date').value;
             checkBookingStep1Ready();
         }
