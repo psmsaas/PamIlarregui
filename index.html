@@ -12,7 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
@@ -384,7 +384,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Turnos (Booking Flow) - CORREGIDO -->
+    <!-- MODAL: Turnos (Booking Flow) -->
     <div id="booking-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
         <div class="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden fade-in max-h-[90vh] flex flex-col">
             <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100 relative z-10">
@@ -402,12 +402,12 @@
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">2. Horarios Disponibles</label>
                         <div class="grid grid-cols-3 gap-3" id="time-slots-container">
-                            <button onclick="selectTimeSlot('10:00', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">10:00</button>
-                            <button onclick="selectTimeSlot('11:30', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">11:30</button>
-                            <button onclick="selectTimeSlot('14:00', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">14:00</button>
-                            <button onclick="selectTimeSlot('15:30', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">15:30</button>
-                            <button onclick="selectTimeSlot('17:00', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">17:00</button>
-                            <button onclick="selectTimeSlot('18:30', this)" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand transition-colors">18:30</button>
+                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">10:00</button>
+                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">11:30</button>
+                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">14:00</button>
+                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">15:30</button>
+                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">17:00</button>
+                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">18:30</button>
                         </div>
                     </div>
 
@@ -486,7 +486,7 @@
     <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col">
             <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100">
-                <h3 class="font-bebas text-2xl text-gray-900 tracking-wide">Producto en Depósito</h3>
+                <h3 id="product-modal-title" class="font-bebas text-2xl text-gray-900 tracking-wide">Producto en Depósito</h3>
                 <button onclick="toggleProductModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-5 bg-gray-50 space-y-4">
@@ -723,6 +723,19 @@
             async updateProductStock(id, newStock) {
                 try { await db.collection('inventory').doc(id).update({ stock: newStock }); return true; } 
                 catch(e) { const p = mockInventory.find(i => i.id === id); if (p) p.stock = newStock; return true; }
+            },
+            // NEW: Metodos Completos para editar y eliminar del deposito
+            async updateProduct(id, data) {
+                try { await db.collection('inventory').doc(id).update(data); return true; }
+                catch(e) {
+                    const idx = mockInventory.findIndex(i => i.id === id);
+                    if(idx > -1) mockInventory[idx] = { ...mockInventory[idx], ...data };
+                    return true;
+                }
+            },
+            async deleteProduct(id) {
+                try { await db.collection('inventory').doc(id).delete(); return true; }
+                catch(e) { mockInventory = mockInventory.filter(i => i.id !== id); return true; }
             }
         };
 
@@ -998,15 +1011,10 @@
             }
         }
 
-        function selectTimeSlot(time, element) {
+        function selectTimeSlot(time) {
             selectedTime = time;
-            document.querySelectorAll('.time-slot-btn').forEach(b => { 
-                b.classList.remove('bg-brand', 'text-white', 'border-brand'); 
-                b.classList.add('text-gray-600', 'border-gray-200', 'hover:border-brand', 'hover:text-brand'); 
-            });
-            const btn = element || event.target;
-            btn.classList.remove('text-gray-600', 'border-gray-200', 'hover:border-brand', 'hover:text-brand'); 
-            btn.classList.add('bg-brand', 'text-white', 'border-brand');
+            document.querySelectorAll('.time-slot-btn').forEach(b => { b.classList.remove('bg-brand', 'text-white', 'border-brand'); b.classList.add('text-gray-600', 'border-gray-200'); });
+            event.target.classList.remove('text-gray-600', 'border-gray-200'); event.target.classList.add('bg-brand', 'text-white', 'border-brand');
             selectedDate = document.getElementById('booking-date').value;
             checkBookingStep1Ready();
         }
@@ -1114,7 +1122,7 @@
                 if (appState.isAdmin) badge.classList.remove('hidden');
                 else badge.classList.add('hidden');
             }
-            renderServices(); renderGallery(); renderSocials();
+            renderServices(); renderGallery(); renderSocials(); renderInventory();
         }
 
         async function updateLogoImage() {
@@ -1360,13 +1368,24 @@
             modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
+        // Logic variables para edicion de inventario
+        let inventoryItems = [];
+        let currentEditProductId = null;
+
         async function renderInventory() {
-            const items = await api.getInventory();
+            inventoryItems = await api.getInventory();
             const container = document.getElementById('inventory-container');
-            if (items.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No hay productos en inventario.</div>`; return; }
+            if (inventoryItems.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">No hay productos en inventario.</div>`; return; }
             
-            container.innerHTML = items.map(p => `
+            container.innerHTML = inventoryItems.map(p => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative group flex flex-col h-full">
+                    
+                    ${appState.isAdmin ? `
+                    <div class="absolute top-3 right-3 flex space-x-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="editProduct('${p.id}')" class="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        <button onclick="handleDeleteProduct('${p.id}')" class="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>` : ''}
+
                     ${p.img ? `<div class="w-full h-32 mb-4 rounded-xl overflow-hidden bg-gray-50 border border-gray-100"><img src="${p.img}" class="w-full h-full object-contain" alt="${p.title}"></div>` : ''}
                     <h4 class="font-bold text-gray-900 text-base mb-1 truncate">${p.title}</h4>
                     <p class="text-[11px] text-brand font-bold uppercase tracking-widest mb-4 font-mono flex-grow">${p.code} ${p.barcode ? `| EAN: ${p.barcode}` : ''}</p>
@@ -1388,14 +1407,37 @@
                     </div>
                 </div>
             `).join('');
+            lucide.createIcons();
+        }
+
+        function editProduct(id) {
+            const prod = inventoryItems.find(p => p.id === id);
+            if(!prod) return;
+
+            document.getElementById('prod-title').value = prod.title || '';
+            document.getElementById('prod-code').value = prod.code || '';
+            document.getElementById('prod-barcode').value = prod.barcode || '';
+            document.getElementById('prod-cost').value = prod.cost || 0;
+            document.getElementById('prod-price').value = prod.price || 0;
+            document.getElementById('prod-stock').value = prod.stock || 0;
+            document.getElementById('prod-img').value = ''; 
+
+            currentEditProductId = id;
+            document.getElementById('product-modal-title').textContent = 'Editar Producto';
+
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('opacity-100'), 10);
         }
 
         function toggleProductModal() {
             const modal = document.getElementById('product-modal');
             if (modal.classList.contains('hidden')) {
+                currentEditProductId = null;
+                document.getElementById('product-modal-title').textContent = 'Nuevo Producto';
                 ['prod-title','prod-code','prod-barcode','prod-cost','prod-price'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('prod-stock').value = '0';
-                document.getElementById('prod-img').value = ''; // Limpiar el input de imagen
+                document.getElementById('prod-img').value = ''; 
                 modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
             } else {
                 modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
@@ -1419,12 +1461,26 @@
                 p.img = await api.uploadImage(fileInput.files[0], 'inventory');
             }
 
-            await api.addProduct(p); await renderInventory(); toggleProductModal(); showToast('Producto agregado al inventario', 'success');
+            if (currentEditProductId) {
+                await api.updateProduct(currentEditProductId, p);
+                showToast('Producto actualizado', 'success');
+            } else {
+                await api.addProduct(p);
+                showToast('Producto agregado al inventario', 'success');
+            }
+            
+            await renderInventory(); 
+            toggleProductModal(); 
+        }
+
+        async function handleDeleteProduct(id) { 
+            await api.deleteProduct(id); 
+            await renderInventory(); 
+            showToast('Producto eliminado', 'success'); 
         }
 
         async function changeStock(id, amount) {
-            const items = await api.getInventory();
-            const prod = items.find(i => i.id === id);
+            const prod = inventoryItems.find(i => i.id === id);
             if(prod) {
                 let newStock = prod.stock + amount;
                 if(newStock < 0) newStock = 0;
