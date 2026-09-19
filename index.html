@@ -311,9 +311,16 @@
         <section id="view-location" class="view-section max-w-2xl mx-auto py-4">
             <h2 class="font-bebas text-4xl text-center mb-6 text-black tracking-wide">Dónde Encontrarnos</h2>
             
-            <div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 overflow-hidden mb-6 relative w-full">
-                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-gray-100 relative">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3406.3704013862853!2d-58.0128387!3d-31.376348799999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade82180856ba7%3A0xf00f756975b1c1a!2sAv.%20Eva%20Per%C3%B3n%201821%2C%20E3200%20AIF%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses!2sar!4v1789836560631!5m2!1ses!2sar" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            <div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 mb-6 w-full box-border">
+                <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-gray-100">
+                    <iframe id="location-iframe" 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3406.3704013862853!2d-58.0128387!3d-31.376348799999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade82180856ba7%3A0xf00f756975b1c1a!2sAv.%20Eva%20Per%C3%B3n%201821%2C%20E3200%20AIF%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses!2sar!4v1789836560631!5m2!1ses!2sar" 
+                            class="absolute inset-0 block m-0 p-0 border-0" 
+                            style="width: 100% !important; height: 100% !important;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
                 </div>
             </div>
 
@@ -485,12 +492,12 @@
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">2. Horarios Disponibles</label>
                         <div class="grid grid-cols-3 gap-3" id="time-slots-container">
-                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">10:00</button>
-                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">11:30</button>
-                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">14:00</button>
-                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">15:30</button>
-                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">17:00</button>
-                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">18:30</button>
+                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand transition-colors">10:00</button>
+                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand transition-colors">11:30</button>
+                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand transition-colors">14:00</button>
+                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand transition-colors">15:30</button>
+                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand transition-colors">17:00</button>
+                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand transition-colors">18:30</button>
                         </div>
                     </div>
 
@@ -705,10 +712,9 @@
         let mockSocials = [];
         let mockSales = []; 
 
-        // 2. DATA ACCESS LAYER (COMPRESOR MÁGICO + FIREBASE FIRESTORE)
+        // 2. DATA ACCESS LAYER
         const api = {
-            // NUEVO SISTEMA DE SUBIDA: Compresor 100% gratuito en Base64
-            // Evita por completo los cuelgues de Firebase Storage y ahorra espacio.
+            // COMPRESOR MÁGICO + BASE64
             async uploadImage(file, folderName) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -720,26 +726,20 @@
                             const canvas = document.createElement('canvas');
                             let width = img.width;
                             let height = img.height;
-                            
-                            // Límite de tamaño para no saturar Firestore (aprox 60kb - 90kb)
                             const maxWidth = 700; 
-
                             if (width > maxWidth) {
                                 height = Math.round((height * maxWidth) / width);
                                 width = maxWidth;
                             }
-
                             canvas.width = width;
                             canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
-                            
-                            // Comprimir a JPEG con 70% de calidad
                             resolve(canvas.toDataURL('image/jpeg', 0.7)); 
                         };
                         img.onerror = (e) => {
                             console.error("Error al procesar la imagen", e);
-                            resolve(event.target.result); // Fallback al original si falla el canvas
+                            resolve(event.target.result);
                         }
                     };
                     reader.onerror = (error) => {
@@ -963,7 +963,6 @@
             if (document.getElementById('mobile-menu').classList.contains('open')) toggleMobileMenu();
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Refresh specialized views when navigated to
             if(viewId === 'cashier' && appState.isAdmin) {
                 renderCashier();
             }
@@ -1646,13 +1645,11 @@
             }
         }
 
-        // --- LÓGICA DE CAJA (Ventas) ---
+        // --- CAJA MODULE ---
         async function renderCashier() {
-            // Refrescar inventario por si hubo cambios
             loadedInventory = await api.getInventory();
             const selectEl = document.getElementById('sale-product');
             
-            // Llenar selector de productos (solo los que tienen stock)
             selectEl.innerHTML = '<option value="">Selecciona un producto en stock...</option>' + 
                 loadedInventory.filter(p => p.stock > 0).map(p => `
                     <option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">
@@ -1660,11 +1657,9 @@
                     </option>
                 `).join('');
 
-            // Resetear form
             document.getElementById('sale-quantity').value = 1;
             calculateSaleTotal();
 
-            // Renderizar Historial de Ventas
             const sales = await api.getSales();
             const historyContainer = document.getElementById('sales-history-container');
             
@@ -1711,7 +1706,6 @@
             const stock = parseInt(selectedOption.dataset.stock);
             let qty = parseInt(qtyEl.value);
 
-            // Validar cantidad vs stock
             if (qty > stock) {
                 qtyEl.value = stock;
                 qty = stock;
@@ -1737,50 +1731,36 @@
 
             const selectedOption = selectEl.options[selectEl.selectedIndex];
             const productId = selectEl.value;
-            const productName = selectedOption.text.split(' - ')[0]; // Extraer nombre limpio
+            const productName = selectedOption.text.split(' - ')[0]; 
             const price = parseFloat(selectedOption.dataset.price);
-            const initialStock = parseInt(selectedOption.dataset.stock); // Obtenemos el stock actual
+            const initialStock = parseInt(selectedOption.dataset.stock); 
             const qty = parseInt(qtyEl.value);
             const totalAmount = price * qty;
             
-            // Obtener método de pago
             const paymentMethod = document.querySelector('input[name="sale-payment"]:checked').value;
 
-            // Formatear Fecha Actual (dd/mm/yyyy HH:mm)
             const now = new Date();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
             const saleRecord = {
-                productId,
-                productName,
-                quantity: qty,
-                totalAmount,
-                paymentMethod,
-                date: dateStr,
-                timestamp: Date.now()
+                productId, productName, quantity: qty, totalAmount, paymentMethod, date: dateStr, timestamp: Date.now()
             };
 
-            // 1. Guardar la venta
             await api.addSale(saleRecord);
-
-            // 2. Descontar del inventario
             await changeStock(productId, -qty);
-
-            // 3. Feedback visual
+            
             showToast('Venta registrada con éxito', 'success');
 
-            // 4. Alerta de Stock Cero
             if ((initialStock - qty) <= 0) {
                 setTimeout(() => {
                     showToast(`¡Atención! "${productName}" se ha quedado sin stock (0).`, 'error');
-                }, 600); // Un pequeño retraso para que aparezca después del mensaje de éxito
+                }, 600); 
             }
 
-            // 5. Refrescar interfaz
             await renderCashier();
         }
 
-        // Init
+        // Init App
         window.addEventListener('DOMContentLoaded', loadInitialData);
     </script>
 </body>
