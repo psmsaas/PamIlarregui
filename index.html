@@ -102,6 +102,7 @@
                     <!-- Admin Only Tabs -->
                     <button onclick="navigate('calendar')" class="admin-only hidden nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-bold transition-all duration-300 border-transparent text-gray-800 hover:text-brand" data-target="calendar">Calendario</button>
                     <button onclick="navigate('inventory')" class="admin-only hidden nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-bold transition-all duration-300 border-transparent text-gray-800 hover:text-brand" data-target="inventory">Depósito</button>
+                    <button onclick="navigate('cashier')" class="admin-only hidden nav-btn inline-flex items-center px-1 pt-1 border-b-2 text-sm uppercase tracking-wider font-bold transition-all duration-300 border-transparent text-gray-800 hover:text-brand" data-target="cashier">Caja</button>
                 </div>
 
                 <div class="flex items-center md:hidden">
@@ -124,6 +125,7 @@
                 <!-- Admin Only Mobile Tabs -->
                 <button onclick="navigate('calendar')" class="admin-only hidden mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-bold text-gray-800 bg-gray-100" data-target="calendar">📅 Calendario</button>
                 <button onclick="navigate('inventory')" class="admin-only hidden mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-bold text-gray-800 bg-gray-100" data-target="inventory">📦 Depósito</button>
+                <button onclick="navigate('cashier')" class="admin-only hidden mobile-nav-btn block w-full text-left px-4 py-3 rounded-xl text-sm uppercase tracking-wider font-bold text-gray-800 bg-gray-100" data-target="cashier">💰 Caja</button>
             </div>
         </div>
     </nav>
@@ -252,8 +254,8 @@
                     <i data-lucide="star" data-rating="4" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
                     <i data-lucide="star" data-rating="5" class="w-8 h-8 cursor-pointer hover:text-yellow-400 star-rate transition-colors"></i>
                 </div>
-                <input type="text" id="review-name" placeholder="Tu Nombre" class="w-full mb-4 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand font-medium" />
-                <textarea id="review-comment" rows="3" placeholder="Cuéntanos más detalles..." class="w-full mb-5 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand resize-none"></textarea>
+                <input type="text" id="review-name" placeholder="Tu Nombre" class="w-full mb-4 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm font-medium" />
+                <textarea id="review-comment" rows="3" placeholder="Cuéntanos más detalles..." class="w-full mb-5 p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm resize-none"></textarea>
                 
                 <div class="flex justify-end space-x-3">
                     <button onclick="toggleReviewModal()" class="px-5 py-2.5 text-gray-500 hover:bg-gray-100 rounded-xl text-sm font-medium transition-colors">Cancelar</button>
@@ -311,6 +313,7 @@
             
             <div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 overflow-hidden mb-6 relative">
                 <div class="aspect-video w-full rounded-2xl overflow-hidden bg-gray-100">
+                    <!-- Mapa apuntando a Plaza 25 de Mayo, Concordia -->
                     <iframe id="location-iframe" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3403.206385311867!2d-58.0210255239121!3d-31.394662974271424!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade80637cb6c59%3A0x722a523e473bbdfa!2sPlaza%2025%20de%20Mayo!5e0!3m2!1ses!2sar!4v1714495537542!5m2!1ses!2sar" width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
@@ -365,6 +368,85 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="inventory-container"></div>
         </section>
+
+        <!-- 9. VISTA: CAJA (Admin Only - Venta de Productos) -->
+        <section id="view-cashier" class="view-section max-w-6xl mx-auto py-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-gray-200 pb-4 gap-4">
+                <div>
+                    <h2 class="font-bebas text-5xl text-gray-900 tracking-wider">Caja</h2>
+                    <p class="text-gray-500 text-sm mt-1">Registro de ventas de depósito</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Panel Izquierdo: Nueva Venta -->
+                <div class="lg:col-span-5">
+                    <div class="bg-white p-6 rounded-3xl shadow-soft border border-gray-100">
+                        <h3 class="font-bold text-gray-900 text-lg mb-6 flex items-center"><i data-lucide="shopping-cart" class="w-5 h-5 mr-2 text-brand"></i> Registrar Venta</h3>
+                        
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase">Seleccionar Producto</label>
+                                <select id="sale-product" onchange="calculateSaleTotal()" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm bg-gray-50 appearance-none font-medium">
+                                    <option value="">Selecciona un producto en stock...</option>
+                                    <!-- Opciones inyectadas por JS -->
+                                </select>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase">Cantidad</label>
+                                    <input type="number" id="sale-quantity" value="1" min="1" onchange="calculateSaleTotal()" onkeyup="calculateSaleTotal()" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm bg-gray-50 font-bold text-center">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase text-right">Total a cobrar</label>
+                                    <div class="w-full p-3 rounded-xl bg-green-50 text-green-700 text-sm font-bold text-right border border-green-100 flex items-center justify-between">
+                                        <span>$</span>
+                                        <span id="sale-total-display">0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-2 uppercase">Método de Pago</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="sale-payment" value="Efectivo" class="peer sr-only" checked>
+                                        <div class="p-3 text-sm font-medium text-center bg-white border border-gray-200 rounded-xl peer-checked:border-brand peer-checked:bg-brand/5 peer-checked:text-brand-dark hover:bg-gray-50 transition-all flex flex-col items-center justify-center gap-1">
+                                            <i data-lucide="banknote" class="w-5 h-5"></i> Efectivo
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="sale-payment" value="Transferencia" class="peer sr-only">
+                                        <div class="p-3 text-sm font-medium text-center bg-white border border-gray-200 rounded-xl peer-checked:border-brand peer-checked:bg-brand/5 peer-checked:text-brand-dark hover:bg-gray-50 transition-all flex flex-col items-center justify-center gap-1">
+                                            <i data-lucide="smartphone" class="w-5 h-5"></i> Transfer
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button onclick="processSale()" id="btn-process-sale" disabled class="w-full mt-4 bg-gray-300 text-gray-500 font-bold py-3.5 rounded-xl uppercase tracking-widest text-sm transition-all cursor-not-allowed">
+                                Confirmar Venta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel Derecho: Historial -->
+                <div class="lg:col-span-7">
+                    <div class="bg-white p-6 rounded-3xl shadow-soft border border-gray-100 h-full flex flex-col">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-gray-900 text-lg flex items-center"><i data-lucide="receipt" class="w-5 h-5 mr-2 text-gray-500"></i> Historial de Ventas</h3>
+                        </div>
+                        
+                        <div class="flex-grow overflow-y-auto pr-2 space-y-3 max-h-[500px]" id="sales-history-container">
+                            <!-- Ventas inyectadas por JS -->
+                            <div class="text-center py-10 text-gray-400 text-sm">Cargando historial...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Contenedor Toasts -->
@@ -376,7 +458,7 @@
             <h3 id="input-modal-title" class="font-semibold text-gray-900 mb-2">Ingresar dato</h3>
             <p id="input-modal-desc" class="text-sm text-gray-500 mb-4 hidden"></p>
             
-            <input type="text" id="input-modal-field" class="w-full p-3 rounded-xl border border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none mb-5">
+            <input type="text" id="input-modal-field" class="w-full p-3 rounded-xl border border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none text-sm mb-5">
             <input type="file" id="input-modal-file-field" accept="image/*" class="w-full p-3 rounded-xl border border-gray-300 focus:border-brand outline-none text-sm mb-5 hidden file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer">
             
             <div class="flex justify-end space-x-3">
@@ -404,12 +486,12 @@
                     <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">2. Horarios Disponibles</label>
                         <div class="grid grid-cols-3 gap-3" id="time-slots-container">
-                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">10:00</button>
-                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">11:30</button>
-                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">14:00</button>
-                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">15:30</button>
-                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">17:00</button>
-                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn hover-fix py-2.5 rounded-xl border border-gray-200 font-medium text-gray-600 hover:border-brand hover:text-brand">18:30</button>
+                            <button onclick="selectTimeSlot('10:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">10:00</button>
+                            <button onclick="selectTimeSlot('11:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">11:30</button>
+                            <button onclick="selectTimeSlot('14:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">14:00</button>
+                            <button onclick="selectTimeSlot('15:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">15:30</button>
+                            <button onclick="selectTimeSlot('17:00')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">17:00</button>
+                            <button onclick="selectTimeSlot('18:30')" class="time-slot-btn py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-brand hover:text-brand">18:30</button>
                         </div>
                     </div>
 
@@ -431,20 +513,20 @@
                     <div class="space-y-4 mb-8 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                         <div>
                             <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Nombre Completo *</label>
-                            <input type="text" id="client-name" placeholder="Ej: Lucía Pérez" class="w-full p-3.5 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:border-brand">
+                            <input type="text" id="client-name" placeholder="Ej: Lucía Pérez" class="w-full p-3.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-brand">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">WhatsApp *</label>
                             <div class="flex">
                                 <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-gray-500 font-medium">+54</span>
-                                <input type="tel" id="client-phone" placeholder="9 11 2345-6789" class="w-full p-3.5 rounded-r-xl border border-gray-200 bg-gray-50 outline-none focus:border-brand">
+                                <input type="tel" id="client-phone" placeholder="9 11 2345-6789" class="w-full p-3.5 rounded-r-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-brand">
                             </div>
                         </div>
                     </div>
 
                     <div class="flex space-x-3">
-                        <button onclick="goToBookingStep(1)" class="px-5 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition-colors">Volver</button>
-                        <button onclick="confirmBooking()" class="flex-1 bg-gray-900 text-white font-medium py-3.5 rounded-xl shadow hover:bg-black transition-colors flex justify-center items-center">
+                        <button onclick="goToBookingStep(1)" class="px-5 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors">Volver</button>
+                        <button onclick="confirmBooking()" class="flex-1 bg-gray-900 text-white font-medium py-3.5 rounded-xl text-sm shadow hover:bg-black transition-colors flex justify-center items-center">
                             <i data-lucide="check" class="w-4 h-4 mr-2"></i> Confirmar Turno
                         </button>
                     </div>
@@ -463,10 +545,10 @@
             <h3 class="font-bebas text-3xl text-gray-900 mb-1 tracking-wide">Acceso Seguro</h3>
             <p class="text-sm text-gray-500 mb-6">Ingresa para gestionar el contenido</p>
             <div class="space-y-3 mb-6">
-                <input type="text" id="admin-user-input" placeholder="Usuario (admin)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-gray-900 transition-all">
-                <input type="password" id="admin-pass-input" placeholder="Contraseña (123)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-gray-900 transition-all">
+                <input type="text" id="admin-user-input" placeholder="Usuario (admin)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-gray-900 transition-all">
+                <input type="password" id="admin-pass-input" placeholder="Contraseña (123)" class="w-full p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-sm outline-none focus:border-gray-900 transition-all">
             </div>
-            <button onclick="verifyAdminLogin()" class="w-full bg-brand text-white py-3.5 rounded-xl font-medium shadow-md hover:bg-brand-dark transition-colors">Ingresar al Panel</button>
+            <button onclick="verifyAdminLogin()" class="w-full bg-brand text-white py-3.5 rounded-xl text-sm font-medium shadow-md hover:bg-brand-dark transition-colors">Ingresar al Panel</button>
             <p id="login-error-msg" class="text-xs text-red-500 mt-4 hidden font-medium bg-red-50 py-2 rounded-lg">Credenciales incorrectas.</p>
         </div>
     </div>
@@ -486,45 +568,46 @@
 
     <!-- MODAL: Crear/Editar Producto Inventario (Admin) -->
     <div id="product-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col max-h-[90vh]">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden fade-in flex flex-col">
             <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100">
                 <h3 id="product-modal-title" class="font-bebas text-2xl text-gray-900 tracking-wide">Producto en Depósito</h3>
                 <button onclick="toggleProductModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="p-5 bg-gray-50 space-y-4 overflow-y-auto">
+            <div class="p-5 bg-gray-50 space-y-4 overflow-y-auto max-h-[70vh]">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Título / Nombre</label>
-                    <input type="text" id="prod-title" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
+                    <input type="text" id="prod-title" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cód. Interno</label>
-                        <input type="text" id="prod-code" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
+                        <input type="text" id="prod-code" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Cód. Barras (Opc)</label>
-                        <input type="text" id="prod-barcode" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
+                        <input type="text" id="prod-barcode" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Costo ($)</label>
-                        <input type="number" id="prod-cost" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
+                        <input type="number" id="prod-cost" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Precio Venta ($)</label>
-                        <input type="number" id="prod-price" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
+                        <input type="number" id="prod-price" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Stock</label>
-                    <input type="number" id="prod-stock" value="0" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand font-bold">
+                    <input type="number" id="prod-stock" value="0" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm font-bold">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Imagen (Opcional)</label>
-                    <input type="file" id="prod-img" accept="image/*" class="w-full file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer">
+                    <input type="file" id="prod-img" accept="image/*" class="w-full text-xs file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer">
+                    <p class="text-[10px] text-gray-400 mt-1">* Si editas y no seleccionas imagen, se mantendrá la actual.</p>
                 </div>
             </div>
             <div class="p-4 bg-white border-t border-gray-100 flex justify-end">
-                <button onclick="saveProduct()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium shadow hover:bg-brand-dark transition-colors">Guardar Producto</button>
+                <button onclick="saveProduct()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium text-sm shadow hover:bg-brand-dark transition-colors">Guardar Producto</button>
             </div>
         </div>
     </div>
@@ -539,30 +622,31 @@
             <div class="p-5 bg-gray-50 space-y-4 overflow-y-auto max-h-[60vh]">
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Título del Servicio *</label>
-                    <input type="text" id="srv-title" placeholder="Ej: Perfilado de Cejas" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
+                    <input type="text" id="srv-title" placeholder="Ej: Perfilado de Cejas" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Precio *</label>
-                        <input type="text" id="srv-price" placeholder="Ej: $20.000" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
+                        <input type="text" id="srv-price" placeholder="Ej: $20.000" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Duración</label>
-                        <input type="text" id="srv-time" placeholder="Ej: 60 min" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand">
+                        <input type="text" id="srv-time" placeholder="Ej: 60 min" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Descripción</label>
-                    <textarea id="srv-desc" rows="3" placeholder="Breve detalle del servicio..." class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand resize-none"></textarea>
+                    <textarea id="srv-desc" rows="3" placeholder="Breve detalle del servicio..." class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm resize-none"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Imagen (Opcional)</label>
-                    <input type="file" id="srv-img" accept="image/*" class="w-full file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer mb-2">
+                    <input type="file" id="srv-img" accept="image/*" class="w-full text-xs file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer mb-2">
                     <input type="text" id="srv-img-url" placeholder="O pega el Link URL de la imagen..." class="w-full p-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-xs">
+                    <p class="text-[10px] text-gray-400 mt-1">* Si editas y no seleccionas imagen, se mantendrá la actual.</p>
                 </div>
             </div>
             <div class="p-4 bg-white border-t border-gray-100 flex justify-end">
-                <button onclick="saveService()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium shadow hover:bg-brand-dark transition-colors">Guardar Servicio</button>
+                <button onclick="saveService()" class="px-6 py-2.5 bg-brand text-white rounded-xl font-medium text-sm shadow hover:bg-brand-dark transition-colors">Guardar Servicio</button>
             </div>
         </div>
     </div>
@@ -614,15 +698,16 @@
         let currentEditProductId = null;
         let currentEditServiceId = null;
         
-        // Memoria de Respaldo: Permite que el sistema siga funcionando incluso si Firestore falla
+        // Memoria de Respaldo
         let mockBookings = [];
         let mockInventory = [];
         let mockServices = [];
         let mockReviews = [];
         let mockGallery = [];
         let mockSocials = [];
+        let mockSales = []; // Respaldo para caja
 
-        // 2. DATA ACCESS LAYER (API FIREBASE + MAGIC FALLBACK)
+        // 2. DATA ACCESS LAYER
         const api = {
             async uploadImage(file, folderName) {
                 try {
@@ -746,6 +831,16 @@
             async deleteProduct(id) {
                 try { await db.collection('inventory').doc(id).delete(); return true; } 
                 catch(e) { mockInventory = mockInventory.filter(i => i.id !== id); return true; }
+            },
+
+            // Sales (Caja)
+            async getSales() {
+                try { const snapshot = await db.collection('sales').orderBy('timestamp', 'desc').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
+                catch(e) { return mockSales; }
+            },
+            async addSale(sale) {
+                try { const docRef = await db.collection('sales').add(sale); return { id: docRef.id, ...sale }; } 
+                catch(e) { sale.id = Date.now().toString(); mockSales.unshift(sale); return sale; }
             }
         };
 
@@ -843,6 +938,11 @@
 
             if (document.getElementById('mobile-menu').classList.contains('open')) toggleMobileMenu();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Refresh specialized views when navigated to
+            if(viewId === 'cashier' && appState.isAdmin) {
+                renderCashier();
+            }
         }
 
         let menuOpen = false;
@@ -866,9 +966,9 @@
             let isDayOpen = true;
             
             if (day === 0 && !daysText.includes('domingo')) {
-                isDayOpen = false;
+                isDayOpen = false; 
             } else if (day === 6 && !daysText.includes('sábado') && !daysText.includes('sabado')) {
-                isDayOpen = false;
+                isDayOpen = false; 
             }
 
             const isOpenTime = hour >= settings.openHour && hour < settings.closeHour;
@@ -885,6 +985,9 @@
                 text.textContent = 'Cerrado en este momento'; 
             }
         }
+
+        let loadedInventory = [];
+        let loadedServices = [];
 
         async function loadInitialData() {
             const settings = await api.getSettings();
@@ -916,8 +1019,6 @@
             await renderInventory();
         }
 
-        let loadedServices = [];
-        
         async function renderServices() {
             loadedServices = await api.getServices();
             const container = document.getElementById('services-container');
@@ -1141,6 +1242,9 @@
                 else badge.classList.add('hidden');
             }
             renderServices(); renderGallery(); renderSocials(); renderInventory();
+            if(appState.isAdmin && document.getElementById('view-cashier').classList.contains('active')) {
+                renderCashier();
+            }
         }
 
         async function updateLogoImage() {
@@ -1287,10 +1391,7 @@
             const fileInput = document.getElementById('srv-img');
             const urlInput = document.getElementById('srv-img-url').value;
             
-            if (!title || !price) {
-                showToast('Título y Precio son obligatorios', 'error');
-                return;
-            }
+            if (!title || !price) { showToast('Título y Precio son obligatorios', 'error'); return; }
 
             let finalImgUrl = null;
             
@@ -1302,17 +1403,8 @@
                 finalImgUrl = urlInput;
             }
 
-            const serviceData = { 
-                title: title, 
-                price: price, 
-                time: time || 'Consultar', 
-                desc: desc || '', 
-                timestamp: Date.now() 
-            };
-
-            if (finalImgUrl) {
-                serviceData.img = finalImgUrl;
-            }
+            const serviceData = { title: title, price: price, time: time || 'Consultar', desc: desc || '', timestamp: Date.now() };
+            if (finalImgUrl) { serviceData.img = finalImgUrl; }
 
             if (currentEditServiceId) {
                 await api.updateService(currentEditServiceId, serviceData);
@@ -1414,8 +1506,6 @@
             const modal = document.getElementById('agenda-modal');
             modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
         }
-
-        let loadedInventory = [];
 
         async function renderInventory() {
             loadedInventory = await api.getInventory();
@@ -1530,6 +1620,140 @@
                 if(newStock < 0) newStock = 0;
                 await api.updateProductStock(id, newStock); await renderInventory();
             }
+        }
+
+        // --- LÓGICA DE CAJA (Ventas) ---
+        async function renderCashier() {
+            // Refrescar inventario por si hubo cambios
+            loadedInventory = await api.getInventory();
+            const selectEl = document.getElementById('sale-product');
+            
+            // Llenar selector de productos (solo los que tienen stock)
+            selectEl.innerHTML = '<option value="">Selecciona un producto en stock...</option>' + 
+                loadedInventory.filter(p => p.stock > 0).map(p => `
+                    <option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">
+                        ${p.title} - $${p.price} (Stock: ${p.stock})
+                    </option>
+                `).join('');
+
+            // Resetear form
+            document.getElementById('sale-quantity').value = 1;
+            calculateSaleTotal();
+
+            // Renderizar Historial de Ventas
+            const sales = await api.getSales();
+            const historyContainer = document.getElementById('sales-history-container');
+            
+            if (sales.length === 0) {
+                historyContainer.innerHTML = `<div class="text-center py-10 text-gray-400 text-sm">Aún no hay ventas registradas.</div>`;
+                return;
+            }
+
+            historyContainer.innerHTML = sales.map(sale => `
+                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex justify-between items-center hover:bg-white transition-colors">
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-900 text-sm truncate">${sale.productName}</p>
+                        <div class="flex items-center text-xs text-gray-500 mt-1 space-x-3">
+                            <span class="flex items-center"><i data-lucide="package" class="w-3 h-3 mr-1"></i> ${sale.quantity} und</span>
+                            <span class="flex items-center"><i data-lucide="${sale.paymentMethod === 'Efectivo' ? 'banknote' : 'smartphone'}" class="w-3 h-3 mr-1"></i> ${sale.paymentMethod}</span>
+                        </div>
+                    </div>
+                    <div class="text-right ml-4">
+                        <p class="text-brand-dark font-bold text-lg">$${sale.totalAmount}</p>
+                        <p class="text-[10px] text-gray-400">${sale.date}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+
+        function calculateSaleTotal() {
+            const selectEl = document.getElementById('sale-product');
+            const qtyEl = document.getElementById('sale-quantity');
+            const totalDisplay = document.getElementById('sale-total-display');
+            const btn = document.getElementById('btn-process-sale');
+
+            if (selectEl.value === "") {
+                totalDisplay.textContent = "0";
+                btn.disabled = true;
+                btn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                btn.classList.remove('bg-gray-900', 'text-white', 'hover:bg-black');
+                return;
+            }
+
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const price = parseFloat(selectedOption.dataset.price);
+            const stock = parseInt(selectedOption.dataset.stock);
+            let qty = parseInt(qtyEl.value);
+
+            // Validar cantidad vs stock
+            if (qty > stock) {
+                qtyEl.value = stock;
+                qty = stock;
+                showToast(`Solo quedan ${stock} unidades disponibles`, 'error');
+            } else if (qty < 1 || isNaN(qty)) {
+                qtyEl.value = 1;
+                qty = 1;
+            }
+
+            const total = price * qty;
+            totalDisplay.textContent = total;
+
+            btn.disabled = false;
+            btn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            btn.classList.add('bg-gray-900', 'text-white', 'hover:bg-black');
+        }
+
+        async function processSale() {
+            const selectEl = document.getElementById('sale-product');
+            const qtyEl = document.getElementById('sale-quantity');
+            
+            if (selectEl.value === "") return;
+
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const productId = selectEl.value;
+            const productName = selectedOption.text.split(' - ')[0]; // Extraer nombre limpio
+            const price = parseFloat(selectedOption.dataset.price);
+            const initialStock = parseInt(selectedOption.dataset.stock); // Obtenemos el stock actual
+            const qty = parseInt(qtyEl.value);
+            const totalAmount = price * qty;
+            
+            // Obtener método de pago
+            const paymentMethod = document.querySelector('input[name="sale-payment"]:checked').value;
+
+            // Formatear Fecha Actual (dd/mm/yyyy HH:mm)
+            const now = new Date();
+            const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            const saleRecord = {
+                productId,
+                productName,
+                quantity: qty,
+                totalAmount,
+                paymentMethod,
+                date: dateStr,
+                timestamp: Date.now()
+            };
+
+            // 1. Guardar la venta
+            await api.addSale(saleRecord);
+
+            // 2. Descontar del inventario
+            await changeStock(productId, -qty);
+
+            // 3. Feedback visual
+            showToast('Venta registrada con éxito', 'success');
+
+            // 4. Alerta de Stock Cero
+            if ((initialStock - qty) <= 0) {
+                setTimeout(() => {
+                    showToast(`¡Atención! "${productName}" se ha quedado sin stock (0).`, 'error');
+                }, 600); // Un pequeño retraso para que aparezca después del mensaje de éxito
+            }
+
+            // 5. Refrescar interfaz
+            await renderCashier();
         }
 
         // Init
