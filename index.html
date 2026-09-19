@@ -15,7 +15,6 @@
     <!-- Firebase SDK (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <!-- No external Storage required; Internal Magic Compressor handles Image Base64 encoding -->
 
     <script>
         tailwind.config = {
@@ -720,7 +719,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="text-center text-sm text-gray-400 py-8 w-full border-t border-gray-200 bg-white mt-auto">
         <div class="max-w-md mx-auto px-4 flex flex-col items-center">
             <span class="font-bebas text-xl text-gray-300 tracking-widest mb-2">PAM ILARREGUI</span>
@@ -1079,7 +1077,7 @@
             checkOpenStatus();
             await renderServices();
             await renderInventory(); 
-            await renderHomeShowcase(); // Requires services and inventory loaded first
+            await renderHomeShowcase(); 
             await renderReviews();
             await renderGallery();
             await renderSocials();
@@ -1238,16 +1236,24 @@
         async function renderSocials() {
             const socials = await api.getSocials();
             const container = document.getElementById('social-networks-container');
-            container.innerHTML = socials.map(soc => `
+            
+            container.innerHTML = socials.map(soc => {
+                const iconName = soc.icon || 'globe'; // Siempre se asegura de que haya un ícono, o usa el globo
+                return `
                 <div class="flex items-center group relative">
                     <a href="${soc.url}" target="_blank" class="flex items-center space-x-2 bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-100 hover:border-brand hover:shadow-md transition-all">
-                        <i data-lucide="${soc.icon || 'globe'}" class="w-5 h-5 text-gray-700 group-hover:text-brand transition-colors"></i>
+                        <i data-lucide="${iconName}" class="w-5 h-5 text-gray-700 group-hover:text-brand transition-colors"></i>
                         <span class="text-sm font-medium text-gray-700 group-hover:text-brand transition-colors">${soc.name}</span>
                     </a>
-                    ${appState.isAdmin ? `<button onclick="handleDeleteSocial('${soc.id}')" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"><i data-lucide="x" class="w-3 h-3"></i></button>` : ''}
+                    ${appState.isAdmin ? `<button onclick="handleDeleteSocial('${soc.id}')" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10"><i data-lucide="x" class="w-3 h-3"></i></button>` : ''}
                 </div>
-            `).join('');
-            lucide.createIcons();
+                `;
+            }).join('');
+            
+            // Retraso de seguridad para asegurar que el DOM esté listo y pinte los íconos
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 50);
         }
 
         function openSocialModal() {
@@ -1354,6 +1360,7 @@
 
         document.querySelectorAll('.star-rate').forEach(star => {
             star.addEventListener('click', (e) => {
+                // currentTarget asegura seleccionar el icono completo sin fallos
                 currentReviewRating = parseInt(e.currentTarget.dataset.rating || 5);
                 document.querySelectorAll('.star-rate').forEach((s, idx) => {
                     if (idx < currentReviewRating) { s.classList.add('text-yellow-400', 'fill-current'); s.classList.remove('text-gray-200'); } 
@@ -1771,7 +1778,9 @@
             
             if (itemType === 'product') {
                 await changeStock(rawId, -qty);
-                if ((initialStock - qty) <= 0) setTimeout(() => { showToast(`¡Atención! "${productName}" se quedó sin stock.`, 'error'); }, 600); 
+                if ((initialStock - qty) <= 0) {
+                    setTimeout(() => { showToast(`¡Atención! "${productName}" se quedó sin stock.`, 'error'); }, 600); 
+                }
             } else {
                 await api.incrementServiceSales(rawId, qty);
                 await renderServices(); // Update the badges in the services view
