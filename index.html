@@ -15,7 +15,7 @@
     <!-- Firebase SDK (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <!-- Ya no dependemos de Storage gracias al compresor local -->
 
     <script>
         tailwind.config = {
@@ -74,7 +74,7 @@
         @keyframes toastSlideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 
-        /* Remove mobile hover stickiness */
+        /* Remove mobile hover stickiness for time slots */
         @media (hover: none) {
             .hover-fix:hover { background-color: inherit; color: inherit; border-color: inherit; }
             .time-slot-btn.active { background-color: #B2977D !important; color: white !important; border-color: #B2977D !important; }
@@ -311,10 +311,9 @@
         <section id="view-location" class="view-section max-w-2xl mx-auto py-4">
             <h2 class="font-bebas text-4xl text-center mb-6 text-black tracking-wide">Dónde Encontrarnos</h2>
             
-            <div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 overflow-hidden mb-6 relative">
-                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-gray-100">
-                    <!-- Mapa apuntando a eva peron 1821, Concordia -->
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3406.370402322675!2d-58.01541898776889!3d-31.37634877417297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade82180856ba7%3A0xf00f756975b1c1a!2sAv.%20Eva%20Per%C3%B3n%201821%2C%20E3200%20AIF%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses!2sar!4v1789835798415!5m2!1ses!2sar" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            <div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 overflow-hidden mb-6 relative w-full">
+                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-gray-100 relative">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3406.3704013862853!2d-58.0128387!3d-31.376348799999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade82180856ba7%3A0xf00f756975b1c1a!2sAv.%20Eva%20Per%C3%B3n%201821%2C%20E3200%20AIF%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses!2sar!4v1789836560631!5m2!1ses!2sar" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                 </div>
             </div>
 
@@ -681,7 +680,6 @@
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
         const defaultSettings = {
             logoUrl: '',
@@ -705,24 +703,50 @@
         let mockReviews = [];
         let mockGallery = [];
         let mockSocials = [];
-        let mockSales = []; // Respaldo para caja
+        let mockSales = []; 
 
-        // 2. DATA ACCESS LAYER
+        // 2. DATA ACCESS LAYER (COMPRESOR MÁGICO + FIREBASE FIRESTORE)
         const api = {
+            // NUEVO SISTEMA DE SUBIDA: Compresor 100% gratuito en Base64
+            // Evita por completo los cuelgues de Firebase Storage y ahorra espacio.
             async uploadImage(file, folderName) {
-                try {
-                    const uniqueName = Date.now() + '_' + file.name;
-                    const storageRef = storage.ref().child(`${folderName}/${uniqueName}`);
-                    await storageRef.put(file);
-                    return await storageRef.getDownloadURL();
-                } catch (error) {
-                    console.warn("Storage no configurado, forzando imagen local en Base64...", error);
-                    return new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.readAsDataURL(file);
-                    });
-                }
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+                            
+                            // Límite de tamaño para no saturar Firestore (aprox 60kb - 90kb)
+                            const maxWidth = 700; 
+
+                            if (width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Comprimir a JPEG con 70% de calidad
+                            resolve(canvas.toDataURL('image/jpeg', 0.7)); 
+                        };
+                        img.onerror = (e) => {
+                            console.error("Error al procesar la imagen", e);
+                            resolve(event.target.result); // Fallback al original si falla el canvas
+                        }
+                    };
+                    reader.onerror = (error) => {
+                        console.error("Error al leer el archivo", error);
+                        reject(error);
+                    };
+                });
             },
             async getSettings() {
                 try {
@@ -1396,7 +1420,7 @@
             let finalImgUrl = null;
             
             if (fileInput.files.length > 0) {
-                showToast('Subiendo imagen del servicio...', 'success');
+                showToast('Comprimiendo imagen del servicio...', 'success');
                 const uploadedUrl = await api.uploadImage(fileInput.files[0], 'services');
                 if (uploadedUrl) finalImgUrl = uploadedUrl;
             } else if (urlInput) {
@@ -1588,7 +1612,7 @@
             
             const fileInput = document.getElementById('prod-img');
             if (fileInput.files.length > 0) {
-                showToast('Subiendo imagen...', 'success');
+                showToast('Comprimiendo y guardando imagen...', 'success');
                 p.img = await api.uploadImage(fileInput.files[0], 'inventory');
             }
 
