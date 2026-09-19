@@ -15,7 +15,7 @@
     <!-- Firebase SDK (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <!-- Ya no dependemos de Storage gracias al compresor local -->
+    <!-- No external Storage required; Internal Magic Compressor handles Image Base64 encoding -->
 
     <script>
         tailwind.config = {
@@ -86,7 +86,7 @@
     <nav class="glass-nav shadow-sm sticky top-0 z-40 transition-all duration-300">
         <div class="max-w-md mx-auto sm:max-w-3xl lg:max-w-6xl px-4">
             <div class="flex justify-between items-center h-16 md:h-20">
-                <!-- Trigger Administrador (5s) -->
+                <!-- Trigger Administrador (5s hold) -->
                 <div class="flex-shrink-0 flex items-center cursor-pointer select-none group" id="secret-admin-trigger" title="Mantén presionado para Admin">
                     <span class="font-bebas text-2xl md:text-3xl tracking-widest text-brand group-hover:text-brand-dark transition-colors">PAM ILARREGUI</span>
                 </div>
@@ -131,14 +131,16 @@
     </nav>
 
     <main class="w-full flex-grow relative px-4 py-8">
-        <!-- 1. VISTA: HOME -->
-        <section id="view-home" class="view-section active items-center justify-center min-h-[80vh]">
-            <div class="bg-white rounded-[2rem] shadow-soft overflow-hidden w-full max-w-md border border-brand/10 relative transform transition-all hover:shadow-xl">
-                
+        
+        <section id="view-home" class="view-section active flex-col items-center min-h-[80vh]">
+            
+            <!-- Hero Card -->
+            <div class="bg-white rounded-[2rem] shadow-soft overflow-hidden w-full max-w-md border border-brand/10 relative transform transition-all hover:shadow-xl mx-auto">
                 <div id="admin-badge-home" class="hidden absolute top-4 right-4 bg-black text-white text-xs font-bold px-4 py-1.5 rounded-full z-20 shadow-lg flex items-center">
                     <i data-lucide="shield-check" class="w-3 h-3 mr-1"></i> Admin Activo
                 </div>
 
+                <!-- HUGE Logo Container -->
                 <div class="h-56 sm:h-64 bg-gradient-to-br from-brand/20 to-brand/5 w-full relative overflow-hidden flex flex-col items-center justify-center p-6">
                     <div class="relative z-10 flex flex-col items-center w-full h-full justify-center">
                         <img id="home-logo-img" src="./logo.png" alt="Pam Ilarregui Logo" class="w-[95%] h-[95%] object-contain hidden drop-shadow-md" onerror="this.classList.add('hidden'); document.getElementById('home-logo-fallback').classList.remove('hidden');">
@@ -150,7 +152,6 @@
                 </div>
 
                 <div class="p-8 flex flex-col items-center text-center">
-                    
                     <!-- Admin Config: Logo -->
                     <div id="admin-logo-config" class="admin-only hidden w-full mb-6 bg-brand-bg p-4 rounded-2xl border border-dashed border-brand/40">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Logo (Subir archivo o URL):</label>
@@ -216,9 +217,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Home Showcase Section (Vitrina) -->
+            <div id="home-showcase-wrapper" class="w-full max-w-4xl mx-auto mt-14 mb-8 hidden fade-in">
+                <div class="text-center mb-8">
+                    <h3 class="font-bebas text-4xl text-gray-900 tracking-wider">Descubre Más</h3>
+                    <div class="w-12 h-1 bg-brand mx-auto rounded-full mt-2"></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-2" id="home-showcase-container">
+                    <!-- Cards inyectadas por JS -->
+                </div>
+            </div>
+
         </section>
 
-        <!-- 2. VISTA: SERVICIOS -->
         <section id="view-services" class="view-section max-w-3xl mx-auto py-4">
             <div class="text-center mb-10">
                 <h2 class="font-bebas text-5xl text-gray-900 tracking-wider mb-2">Servicios</h2>
@@ -232,7 +244,6 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="services-container"></div>
         </section>
 
-        <!-- 3. VISTA: RESEÑAS -->
         <section id="view-reviews" class="view-section max-w-2xl mx-auto py-4">
             <div class="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
                 <div>
@@ -265,7 +276,6 @@
             <div class="space-y-5" id="reviews-container"></div>
         </section>
 
-        <!-- 4. VISTA: ACERCA DE -->
         <section id="view-about" class="view-section max-w-xl mx-auto py-8 flex flex-col items-center text-center">
             <div class="relative mb-8 w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-xl bg-brand/10 flex items-center justify-center group">
                 <img id="about-profile-img" src="./logo.png" alt="Pam Ilarregui" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -287,12 +297,11 @@
             <h3 class="font-medium text-gray-400 mb-5 uppercase tracking-widest text-xs">Conecta Conmigo</h3>
             
             <div class="flex flex-wrap gap-4 justify-center items-center w-full mb-6" id="social-networks-container"></div>
-            <button onclick="promptAddSocial()" class="admin-only hidden text-sm text-gray-600 font-medium bg-white border border-dashed border-gray-300 px-5 py-2.5 rounded-xl hover:border-brand hover:text-brand transition-colors">
+            <button onclick="openSocialModal()" class="admin-only hidden text-sm text-gray-600 font-medium bg-white border border-dashed border-gray-300 px-5 py-2.5 rounded-xl hover:border-brand hover:text-brand transition-colors">
                 <i data-lucide="plus" class="w-4 h-4 inline mr-1"></i> Red Social
             </button>
         </section>
 
-        <!-- 5. VISTA: GALERÍA -->
         <section id="view-gallery" class="view-section max-w-5xl mx-auto py-4">
             <div class="text-center mb-10">
                 <h2 class="font-bebas text-5xl text-gray-900 tracking-wider mb-2">Portafolio</h2>
@@ -300,22 +309,21 @@
             </div>
             
             <div class="admin-only hidden flex justify-center mb-8">
-                <button onclick="promptAddGalleryPhoto()" class="py-3 px-6 bg-white border border-brand text-brand rounded-xl flex items-center font-medium hover:bg-brand hover:text-white transition-colors shadow-sm">
+                <button onclick="openGalleryModal()" class="py-3 px-6 bg-white border border-brand text-brand rounded-xl flex items-center font-medium hover:bg-brand hover:text-white transition-colors shadow-sm">
                     <i data-lucide="image-plus" class="w-5 h-5 mr-2"></i> Subir Foto
                 </button>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="gallery-grid-container"></div>
         </section>
 
-        <!-- 6. VISTA: LOCAL -->
         <section id="view-location" class="view-section max-w-2xl mx-auto py-4">
             <h2 class="font-bebas text-4xl text-center mb-6 text-black tracking-wide">Dónde Encontrarnos</h2>
             
             <div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 mb-6 w-full box-border">
-                <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-gray-100">
+                <div class="relative w-full aspect-[4/3] sm:aspect-video rounded-2xl overflow-hidden bg-gray-100">
                     <iframe id="location-iframe" 
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3406.3704013862853!2d-58.0128387!3d-31.376348799999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade82180856ba7%3A0xf00f756975b1c1a!2sAv.%20Eva%20Per%C3%B3n%201821%2C%20E3200%20AIF%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses!2sar!4v1789836560631!5m2!1ses!2sar" 
-                            class="absolute inset-0 block m-0 p-0 border-0" 
+                            class="absolute inset-0 w-full h-full border-0" 
                             style="width: 100% !important; height: 100% !important;" 
                             allowfullscreen="" 
                             loading="lazy" 
@@ -337,7 +345,6 @@
             </div>
         </section>
 
-        <!-- 7. VISTA: CALENDARIO (Admin Only) -->
         <section id="view-calendar" class="view-section max-w-4xl mx-auto py-4">
             <div class="text-center mb-10">
                 <h2 class="font-bebas text-5xl text-gray-900 tracking-wider mb-2">Calendario</h2>
@@ -360,7 +367,6 @@
             </div>
         </section>
 
-        <!-- 8. VISTA: DEPÓSITO (Admin Only) -->
         <section id="view-inventory" class="view-section max-w-5xl mx-auto py-4">
             <div class="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
                 <div>
@@ -375,12 +381,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="inventory-container"></div>
         </section>
 
-        <!-- 9. VISTA: CAJA (Admin Only - Venta de Productos) -->
         <section id="view-cashier" class="view-section max-w-6xl mx-auto py-4">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-gray-200 pb-4 gap-4">
                 <div>
                     <h2 class="font-bebas text-5xl text-gray-900 tracking-wider">Caja</h2>
-                    <p class="text-gray-500 text-sm mt-1">Registro de ventas de depósito</p>
+                    <p class="text-gray-500 text-sm mt-1">Registro y cobro de productos y servicios</p>
                 </div>
             </div>
 
@@ -392,9 +397,8 @@
                         
                         <div class="space-y-5">
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase">Seleccionar Producto</label>
-                                <select id="sale-product" onchange="calculateSaleTotal()" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm bg-gray-50 appearance-none font-medium">
-                                    <option value="">Selecciona un producto en stock...</option>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase">Seleccionar Ítem</label>
+                                <select id="sale-product" onchange="calculateSaleTotal()" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm bg-gray-50 font-medium">
                                     <!-- Opciones inyectadas por JS -->
                                 </select>
                             </div>
@@ -470,6 +474,65 @@
             <div class="flex justify-end space-x-3">
                 <button onclick="closeInputModal(false)" class="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">Cancelar</button>
                 <button onclick="closeInputModal(true)" class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-black transition-colors shadow-sm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Agregar a Galería (Advanced) -->
+    <div id="gallery-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden fade-in flex flex-col">
+            <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100">
+                <h3 class="font-bebas text-2xl text-gray-900 tracking-wide">Subir a Galería</h3>
+                <button onclick="closeGalleryModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Seleccionar Imagen *</label>
+                    <input type="file" id="gal-img-input" accept="image/*" class="w-full text-xs file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark cursor-pointer border border-gray-200 rounded-xl p-1">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Descripción (Opcional)</label>
+                    <textarea id="gal-desc-input" rows="3" placeholder="Detalles de este trabajo..." class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm resize-none"></textarea>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                <button onclick="saveGalleryPhoto()" class="w-full py-3 bg-brand text-white rounded-xl font-medium text-sm shadow hover:bg-brand-dark transition-colors">Subir Foto y Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Red Social Pre-sets -->
+    <div id="social-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4 transition-opacity opacity-0">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden fade-in flex flex-col">
+            <div class="p-5 bg-white flex justify-between items-center border-b border-gray-100">
+                <h3 class="font-bebas text-2xl text-gray-900 tracking-wide">Añadir Red Social</h3>
+                <button onclick="closeSocialModal()" class="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Seleccionar Plataforma</label>
+                    <select id="soc-icon-input" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm bg-gray-50 font-medium">
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="music-2">TikTok</option>
+                        <option value="twitter">X (Twitter)</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="message-circle">WhatsApp</option>
+                        <option value="map-pin">Ubicación (Maps)</option>
+                        <option value="globe">Página Web</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nombre de Perfil</label>
+                    <input type="text" id="soc-name-input" placeholder="Ej: @pam_makeup" class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Enlace Web (URL)</label>
+                    <input type="text" id="soc-url-input" placeholder="Ej: https://instagram.com/..." class="w-full p-3 rounded-xl border border-gray-200 outline-none focus:border-brand text-sm">
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                <button onclick="saveSocialNetwork()" class="w-full py-3 bg-gray-900 text-white rounded-xl font-medium text-sm shadow hover:bg-black transition-colors">Guardar Red Social</button>
             </div>
         </div>
     </div>
@@ -647,7 +710,7 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Imagen (Opcional)</label>
                     <input type="file" id="srv-img" accept="image/*" class="w-full text-xs file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer mb-2">
-                    <input type="text" id="srv-img-url" placeholder="O pega el Link URL de la imagen..." class="w-full p-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-xs">
+                    <input type="text" id="srv-img-url" placeholder="O pega el Link URL de la imagen..." class="w-full p-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-xs hidden"> <!-- Escondido para favorecer la subida de archivo con compresor -->
                     <p class="text-[10px] text-gray-400 mt-1">* Si editas y no seleccionas imagen, se mantendrá la actual.</p>
                 </div>
             </div>
@@ -680,7 +743,7 @@
             apiKey: "AIzaSyAoP7R2rHgskj5pkqVXMGU1c0BJ8UHgd4U",
             authDomain: "pamilarregui-11b97.firebaseapp.com",
             projectId: "pamilarregui-11b97",
-            storageBucket: "pamilarregui-11b97.firebasestorage.app",
+            storageBucket: "pamilarregui-11b97.firebasestorage.app", // No longer actively hit due to base64 compressor
             messagingSenderId: "901569739443",
             appId: "1:901569739443:web:95b66fd0f5524e72990ec6"
         };
@@ -699,11 +762,12 @@
             profileImg: 'https://placehold.co/600x800/B2977D/FFFFFF?text=Pam+Ilarregui'
         };
 
+        let globalSettings = {}; // Used to quickly access whatsapp number for shop
         let appState = { isAdmin: false };
         let currentEditProductId = null;
         let currentEditServiceId = null;
         
-        // Memoria de Respaldo
+        // Memoria de Respaldo Local (por si falla la BD)
         let mockBookings = [];
         let mockInventory = [];
         let mockServices = [];
@@ -712,9 +776,9 @@
         let mockSocials = [];
         let mockSales = []; 
 
-        // 2. DATA ACCESS LAYER
+        // 2. DATA ACCESS LAYER & MAGIC COMPRESSOR
         const api = {
-            // COMPRESOR MÁGICO + BASE64
+            // El compresor de imagenes evita usar Storage, reduciendo tiempos y siendo 100% gratuito
             async uploadImage(file, folderName) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -726,7 +790,7 @@
                             const canvas = document.createElement('canvas');
                             let width = img.width;
                             let height = img.height;
-                            const maxWidth = 700; 
+                            const maxWidth = 700; // Resolución óptima para Web móvil
                             if (width > maxWidth) {
                                 height = Math.round((height * maxWidth) / width);
                                 width = maxWidth;
@@ -735,17 +799,12 @@
                             canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
+                            // Convertir a texto base64 ligero
                             resolve(canvas.toDataURL('image/jpeg', 0.7)); 
                         };
-                        img.onerror = (e) => {
-                            console.error("Error al procesar la imagen", e);
-                            resolve(event.target.result);
-                        }
+                        img.onerror = (e) => resolve(event.target.result); // Fallback
                     };
-                    reader.onerror = (error) => {
-                        console.error("Error al leer el archivo", error);
-                        reject(error);
-                    };
+                    reader.onerror = (error) => reject(error);
                 });
             },
             async getSettings() {
@@ -772,15 +831,25 @@
             },
             async updateService(id, data) {
                 try { await db.collection('services').doc(id).update(data); return true; }
-                catch(e) {
-                    const idx = mockServices.findIndex(s => s.id === id);
-                    if(idx > -1) mockServices[idx] = { ...mockServices[idx], ...data };
-                    return true;
-                }
+                catch(e) { const idx = mockServices.findIndex(s => s.id === id); if(idx > -1) mockServices[idx] = { ...mockServices[idx], ...data }; return true; }
             },
             async deleteService(id) { 
                 try { await db.collection('services').doc(id).delete(); return true; } 
                 catch(e) { mockServices = mockServices.filter(s => s.id !== id); return true; } 
+            },
+            async incrementServiceSales(id, qty) {
+                try { 
+                    const doc = await db.collection('services').doc(id).get();
+                    if (doc.exists) {
+                        const currentCount = doc.data().salesCount || 0;
+                        await db.collection('services').doc(id).update({ salesCount: currentCount + qty });
+                    }
+                    return true; 
+                } catch(e) {
+                    const idx = mockServices.findIndex(s => s.id === id);
+                    if(idx > -1) mockServices[idx].salesCount = (mockServices[idx].salesCount || 0) + qty;
+                    return true;
+                }
             },
             
             // Reviews
@@ -795,7 +864,7 @@
             
             // Gallery
             async getGallery() {
-                try { const snapshot = await db.collection('gallery').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
+                try { const snapshot = await db.collection('gallery').orderBy('timestamp', 'desc').get(); return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); } 
                 catch(e) { return mockGallery; }
             },
             async addGalleryItem(item) { 
@@ -842,11 +911,7 @@
             },
             async updateProduct(id, data) {
                 try { await db.collection('inventory').doc(id).update(data); return true; }
-                catch(e) {
-                    const idx = mockInventory.findIndex(i => i.id === id);
-                    if(idx > -1) mockInventory[idx] = { ...mockInventory[idx], ...data };
-                    return true;
-                }
+                catch(e) { const idx = mockInventory.findIndex(i => i.id === id); if(idx > -1) mockInventory[idx] = { ...mockInventory[idx], ...data }; return true; }
             },
             async updateProductStock(id, newStock) {
                 try { await db.collection('inventory').doc(id).update({ stock: newStock }); return true; } 
@@ -901,21 +966,15 @@
                 else { descEl.classList.add('hidden'); }
                 
                 if (inputType === 'file') {
-                    textInputEl.classList.add('hidden');
-                    fileInputEl.classList.remove('hidden');
-                    fileInputEl.value = ''; 
+                    textInputEl.classList.add('hidden'); fileInputEl.classList.remove('hidden'); fileInputEl.value = ''; 
                 } else {
-                    fileInputEl.classList.add('hidden');
-                    textInputEl.classList.remove('hidden');
-                    textInputEl.value = defaultValue;
+                    fileInputEl.classList.add('hidden'); textInputEl.classList.remove('hidden'); textInputEl.value = defaultValue;
                 }
                 
                 modal.dataset.inputType = inputType;
                 modal.classList.remove('hidden');
                 requestAnimationFrame(() => {
-                    modal.classList.add('opacity-100');
-                    content.classList.remove('scale-95', 'opacity-0');
-                    content.classList.add('scale-100', 'opacity-100');
+                    modal.classList.add('opacity-100'); content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100');
                     if (inputType !== 'file') textInputEl.focus();
                 });
                 inputModalResolve = resolve;
@@ -933,20 +992,13 @@
                 else returnValue = document.getElementById('input-modal-field').value;
             }
             
-            content.classList.remove('scale-100', 'opacity-100');
-            content.classList.add('scale-95', 'opacity-0');
+            content.classList.remove('scale-100', 'opacity-100'); content.classList.add('scale-95', 'opacity-0');
             modal.classList.remove('opacity-100');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                if (inputModalResolve) { inputModalResolve(returnValue); inputModalResolve = null; }
-            }, 200);
+            setTimeout(() => { modal.classList.add('hidden'); if (inputModalResolve) { inputModalResolve(returnValue); inputModalResolve = null; } }, 200);
         }
 
         function navigate(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => {
-                el.classList.remove('active'); el.style.opacity = '0';
-            });
+            document.querySelectorAll('.view-section').forEach(el => { el.classList.remove('active'); el.style.opacity = '0'; });
             const target = document.getElementById(`view-${viewId}`);
             if (target) { target.classList.add('active'); setTimeout(() => target.style.opacity = '1', 10); }
             
@@ -963,9 +1015,7 @@
             if (document.getElementById('mobile-menu').classList.contains('open')) toggleMobileMenu();
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            if(viewId === 'cashier' && appState.isAdmin) {
-                renderCashier();
-            }
+            if(viewId === 'cashier' && appState.isAdmin) renderCashier();
         }
 
         let menuOpen = false;
@@ -980,19 +1030,12 @@
         document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
 
         async function checkOpenStatus() {
-            const settings = await api.getSettings();
-            const now = new Date(); 
-            const hour = now.getHours();
-            const day = now.getDay(); 
-            
+            const settings = globalSettings;
+            const now = new Date(); const hour = now.getHours(); const day = now.getDay(); 
             const daysText = (settings.workingDays || 'Lunes a Sábados').toLowerCase();
             let isDayOpen = true;
-            
-            if (day === 0 && !daysText.includes('domingo')) {
-                isDayOpen = false; 
-            } else if (day === 6 && !daysText.includes('sábado') && !daysText.includes('sabado')) {
-                isDayOpen = false; 
-            }
+            if (day === 0 && !daysText.includes('domingo')) isDayOpen = false; 
+            else if (day === 6 && !daysText.includes('sábado') && !daysText.includes('sabado')) isDayOpen = false; 
 
             const isOpenTime = hour >= settings.openHour && hour < settings.closeHour;
             const isOpen = isDayOpen && isOpenTime;
@@ -1013,33 +1056,88 @@
         let loadedServices = [];
 
         async function loadInitialData() {
-            const settings = await api.getSettings();
+            globalSettings = await api.getSettings();
             
-            document.getElementById('home-whatsapp-btn').href = `https://wa.me/${settings.whatsappNumber}`;
-            document.getElementById('config-wa-input').value = settings.whatsappNumber;
-            document.getElementById('config-open-hour').value = settings.openHour;
-            document.getElementById('config-close-hour').value = settings.closeHour;
-            document.getElementById('config-days-input').value = settings.workingDays || 'Lunes a Sábados';
-            document.getElementById('working-days-text').textContent = settings.workingDays || 'Lunes a Sábados';
+            document.getElementById('home-whatsapp-btn').href = `https://wa.me/${globalSettings.whatsappNumber}`;
+            document.getElementById('config-wa-input').value = globalSettings.whatsappNumber;
+            document.getElementById('config-open-hour').value = globalSettings.openHour;
+            document.getElementById('config-close-hour').value = globalSettings.closeHour;
+            document.getElementById('config-days-input').value = globalSettings.workingDays || 'Lunes a Sábados';
+            document.getElementById('working-days-text').textContent = globalSettings.workingDays || 'Lunes a Sábados';
             
-            document.getElementById('location-address-text').textContent = settings.address;
-            document.getElementById('about-desc-text').textContent = settings.aboutText;
-            document.getElementById('about-profile-img').src = settings.profileImg;
+            document.getElementById('location-address-text').textContent = globalSettings.address;
+            document.getElementById('about-desc-text').textContent = globalSettings.aboutText;
+            document.getElementById('about-profile-img').src = globalSettings.profileImg;
 
-            if (settings.logoUrl) {
+            if (globalSettings.logoUrl) {
                 const img = document.getElementById('home-logo-img');
-                img.src = settings.logoUrl;
+                img.src = globalSettings.logoUrl;
                 img.classList.remove('hidden');
                 document.getElementById('home-logo-fallback').classList.add('hidden');
             }
             
             checkOpenStatus();
             await renderServices();
+            await renderInventory(); 
+            await renderHomeShowcase(); // Requires services and inventory loaded first
             await renderReviews();
             await renderGallery();
             await renderSocials();
             await renderCalendar();
-            await renderInventory();
+        }
+
+        async function renderHomeShowcase() {
+            const container = document.getElementById('home-showcase-container');
+            const wrapper = document.getElementById('home-showcase-wrapper');
+            const visibleProducts = loadedInventory.filter(p => p.visibleInHome);
+            
+            if (loadedServices.length === 0 && visibleProducts.length === 0) {
+                wrapper.classList.add('hidden');
+                return;
+            }
+            wrapper.classList.remove('hidden');
+            
+            let html = '';
+            
+            // Render Services in Showcase
+            loadedServices.forEach(s => {
+                html += `
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-lg transition-all relative">
+                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-brand-dark border border-brand/20 text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm z-10 flex items-center"><i data-lucide="sparkles" class="w-3 h-3 mr-1"></i> Servicio</div>
+                    <div class="h-44 w-full overflow-hidden bg-gray-50"><img src="${s.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/400x300/fdfcfb/8e755e?text=Servicio'"></div>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <h4 class="font-bebas text-2xl text-gray-900 tracking-wide mb-1 leading-none">${s.title}</h4>
+                        <p class="text-sm font-semibold text-gray-500 mb-4">${s.price}</p>
+                        <button onclick="startBooking('${s.title.replace(/'/g, "\\'")}')" class="mt-auto w-full bg-gray-900 text-white text-sm font-bold py-3 rounded-xl hover:bg-black transition-colors uppercase tracking-wider flex justify-center items-center">Reservar Turno</button>
+                    </div>
+                </div>`;
+            });
+            
+            // Render Products in Showcase
+            visibleProducts.forEach(p => {
+                html += `
+                <div class="bg-white rounded-3xl shadow-sm border border-brand/20 overflow-hidden flex flex-col group hover:shadow-lg transition-all relative">
+                    <div class="absolute top-3 left-3 bg-brand text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-sm z-10 flex items-center"><i data-lucide="package" class="w-3 h-3 mr-1"></i> Producto</div>
+                    <div class="h-44 w-full overflow-hidden bg-gray-50 p-2 relative">
+                        <img src="${p.img || 'https://placehold.co/400x300/fdfcfb/8e755e?text=Producto'}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500">
+                        ${p.stock <= 0 ? `<div class="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center"><span class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md uppercase tracking-widest">Agotado</span></div>` : ''}
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <h4 class="font-bold text-gray-900 text-lg mb-1 leading-tight line-clamp-2">${p.title}</h4>
+                        <p class="text-brand-dark font-bold text-xl mb-4">$${p.price}</p>
+                        <button onclick="buyProduct('${p.title.replace(/'/g, "\\'")}')" class="mt-auto w-full bg-brand text-white text-sm font-bold py-3 rounded-xl hover:bg-brand-dark transition-colors uppercase tracking-wider flex justify-center items-center"><i data-lucide="shopping-bag" class="w-4 h-4 mr-2"></i> Lo Quiero</button>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function buyProduct(productName) {
+            const message = `Hola Pam! ✨ Me interesa comprar el siguiente producto que vi en tu página:\n\n*${productName}*`;
+            const waUrl = `https://wa.me/${globalSettings.whatsappNumber}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
         }
 
         async function renderServices() {
@@ -1050,7 +1148,12 @@
                 <div class="bg-white rounded-3xl shadow-soft border border-gray-100 overflow-hidden group hover:shadow-lg transition-shadow">
                     <div class="h-56 w-full relative overflow-hidden">
                         <img src="${s.img}" alt="${s.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio'" />
-                        ${appState.isAdmin ? `<div class="absolute top-3 right-3 z-10 flex space-x-2">
+                        
+                        ${appState.isAdmin ? `
+                        <div class="absolute top-3 left-3 z-10 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-sm flex items-center">
+                            <i data-lucide="trending-up" class="w-3 h-3 mr-1"></i> Ventas Totales: ${s.salesCount || 0}
+                        </div>
+                        <div class="absolute top-3 right-3 z-10 flex space-x-2">
                             <button onclick="editService('${s.id}')" class="p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
                             <button onclick="handleDeleteService('${s.id}')" class="p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>` : ''}
@@ -1062,7 +1165,7 @@
                         </div>
                         <div class="flex items-center text-brand-dark text-xs font-semibold uppercase tracking-wider mb-4"><i data-lucide="clock" class="w-3.5 h-3.5 mr-1.5"></i> ${s.time}</div>
                         <div class="flex space-x-3 mt-5">
-                            <button class="flex-1 bg-gray-900 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-black transition-colors text-sm" onclick="startBooking('${s.title}')">Agendar</button>
+                            <button class="flex-1 bg-gray-900 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-black transition-colors text-sm" onclick="startBooking('${s.title.replace(/'/g, "\\'")}')">Agendar</button>
                             <button class="px-4 py-3 bg-gray-50 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors" onclick="toggleAccordion('desc-${s.id}', this)"><i data-lucide="info" class="w-4 h-4"></i></button>
                         </div>
                         <div id="desc-${s.id}" class="overflow-hidden transition-all duration-300 ease-in-out max-h-0 opacity-0"><div class="p-4 bg-gray-50 rounded-xl text-gray-600 text-sm leading-relaxed border border-gray-100 mt-4 font-light">${s.desc}</div></div>
@@ -1091,13 +1194,46 @@
             const container = document.getElementById('gallery-grid-container');
             if (gallery.length === 0) { container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400">Sube fotos a la galería.</div>`; return; }
             container.innerHTML = gallery.map(g => `
-                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden group shadow-sm bg-gray-100">
+                <div class="relative aspect-[3/4] rounded-2xl overflow-hidden group shadow-sm bg-gray-100 cursor-pointer">
                     <img src="${g.url}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="Galeria Pam" onerror="this.src='https://placehold.co/600x800/f1f1f1/b2977d?text=Foto'" />
-                    ${appState.isAdmin ? `<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center backdrop-blur-sm"><button onclick="handleDeleteGallery('${g.id}')" class="p-3 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transform hover:scale-110 transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div>` : ''}
+                    
+                    <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4 backdrop-blur-[2px]">
+                        ${g.desc ? `<p class="text-white text-sm font-medium text-center mb-3 line-clamp-4 leading-relaxed">${g.desc}</p>` : ''}
+                        ${appState.isAdmin ? `<button onclick="handleDeleteGallery('${g.id}')" class="p-3 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transform hover:scale-110 transition-all mt-auto"><i data-lucide="trash-2" class="w-5 h-5"></i></button>` : ''}
+                    </div>
                 </div>
             `).join('');
             lucide.createIcons();
         }
+
+        function openGalleryModal() {
+            document.getElementById('gal-img-input').value = '';
+            document.getElementById('gal-desc-input').value = '';
+            const modal = document.getElementById('gallery-modal');
+            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
+        }
+
+        function closeGalleryModal() {
+            const modal = document.getElementById('gallery-modal');
+            modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        async function saveGalleryPhoto() {
+            const file = document.getElementById('gal-img-input').files[0];
+            const desc = document.getElementById('gal-desc-input').value;
+            if (!file) return showToast('Por favor selecciona una imagen', 'error');
+            
+            showToast('Comprimiendo y subiendo foto...', 'success');
+            closeGalleryModal();
+            
+            const imgUrl = await api.uploadImage(file, 'gallery');
+            if (imgUrl) {
+                await api.addGalleryItem({ url: imgUrl, desc: desc || '', timestamp: Date.now() });
+                await renderGallery();
+                showToast('Foto agregada a la galería', 'success');
+            }
+        }
+        async function handleDeleteGallery(id) { await api.deleteGalleryItem(id); await renderGallery(); showToast('Foto eliminada', 'success'); }
 
         async function renderSocials() {
             const socials = await api.getSocials();
@@ -1114,6 +1250,32 @@
             lucide.createIcons();
         }
 
+        function openSocialModal() {
+            document.getElementById('soc-name-input').value = '';
+            document.getElementById('soc-url-input').value = '';
+            const modal = document.getElementById('social-modal');
+            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
+        }
+
+        function closeSocialModal() {
+            const modal = document.getElementById('social-modal');
+            modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        async function saveSocialNetwork() {
+            const icon = document.getElementById('soc-icon-input').value;
+            const name = document.getElementById('soc-name-input').value;
+            const url = document.getElementById('soc-url-input').value;
+
+            if(!name || !url) return showToast('Completa el nombre y la URL', 'error');
+
+            await api.addSocial({ name, url, icon });
+            await renderSocials();
+            closeSocialModal();
+            showToast('Red social añadida', 'success');
+        }
+        async function handleDeleteSocial(id) { await api.deleteSocial(id); await renderSocials(); showToast('Red social removida', 'success'); }
+
         function toggleAccordion(id, btnElement) {
             const content = document.getElementById(id);
             if (content.classList.contains('max-h-0')) { content.classList.remove('max-h-0', 'opacity-0'); content.classList.add('max-h-[500px]', 'opacity-100'); btnElement.classList.add('bg-gray-100'); } 
@@ -1129,15 +1291,13 @@
             document.getElementById('booking-date').min = today;
             
             const modal = document.getElementById('booking-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('opacity-100'), 10);
+            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
             goToBookingStep(1);
         }
 
         function closeBookingModal() {
             const modal = document.getElementById('booking-modal');
-            modal.classList.remove('opacity-100');
-            setTimeout(() => modal.classList.add('hidden'), 300);
+            modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
         function goToBookingStep(step) {
@@ -1180,7 +1340,7 @@
             await api.addBooking(bookingData);
             await renderCalendar(); 
 
-            const settings = await api.getSettings();
+            const settings = globalSettings;
             const message = `Hola Pam! ✨ Quiero reservar un turno.\n\n*Servicio:* ${selectedService}\n*Fecha:* ${selectedDate}\n*Hora:* ${selectedTime} hs\n*Nombre:* ${name}`;
             const waUrl = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(message)}`;
             
@@ -1223,150 +1383,87 @@
                     appState.isAdmin = false;
                     updateAdminUIMode();
                     showToast('Modo usuario activado.', 'success');
-                } else {
-                    document.getElementById('admin-login-modal').classList.remove('hidden');
-                }
+                } else { document.getElementById('admin-login-modal').classList.remove('hidden'); }
             }, 5000);
         };
         const cancelPress = () => { if (pressTimer) clearTimeout(pressTimer); };
 
-        secretTrigger.addEventListener('mousedown', startPress);
-        secretTrigger.addEventListener('mouseup', cancelPress);
-        secretTrigger.addEventListener('mouseleave', cancelPress);
-        secretTrigger.addEventListener('touchstart', startPress, {passive: true});
+        secretTrigger.addEventListener('mousedown', startPress); secretTrigger.addEventListener('mouseup', cancelPress);
+        secretTrigger.addEventListener('mouseleave', cancelPress); secretTrigger.addEventListener('touchstart', startPress, {passive: true});
         secretTrigger.addEventListener('touchend', cancelPress);
 
         function closeAdminLoginModal() {
             document.getElementById('admin-login-modal').classList.add('hidden');
-            document.getElementById('admin-user-input').value = '';
-            document.getElementById('admin-pass-input').value = '';
+            document.getElementById('admin-user-input').value = ''; document.getElementById('admin-pass-input').value = '';
             document.getElementById('login-error-msg').classList.add('hidden');
         }
 
         function verifyAdminLogin() {
-            const u = document.getElementById('admin-user-input').value;
-            const p = document.getElementById('admin-pass-input').value;
+            const u = document.getElementById('admin-user-input').value; const p = document.getElementById('admin-pass-input').value;
             if (u === 'admin' && p === '123') {
-                appState.isAdmin = true;
-                closeAdminLoginModal();
-                updateAdminUIMode();
-                showToast('Sesión iniciada como Administrador', 'success');
+                appState.isAdmin = true; closeAdminLoginModal(); updateAdminUIMode(); showToast('Sesión iniciada como Administrador', 'success');
             } else { document.getElementById('login-error-msg').classList.remove('hidden'); }
         }
 
         function updateAdminUIMode() {
             document.querySelectorAll('.admin-only').forEach(el => {
-                if (appState.isAdmin) el.classList.remove('hidden');
-                else el.classList.add('hidden');
+                if (appState.isAdmin) el.classList.remove('hidden'); else el.classList.add('hidden');
             });
             const badge = document.getElementById('admin-badge-home');
-            if (badge) {
-                if (appState.isAdmin) badge.classList.remove('hidden');
-                else badge.classList.add('hidden');
-            }
+            if (badge) { if (appState.isAdmin) badge.classList.remove('hidden'); else badge.classList.add('hidden'); }
             renderServices(); renderGallery(); renderSocials(); renderInventory();
-            if(appState.isAdmin && document.getElementById('view-cashier').classList.contains('active')) {
-                renderCashier();
-            }
+            if(appState.isAdmin && document.getElementById('view-cashier').classList.contains('active')) renderCashier();
         }
 
         async function updateLogoImage() {
             const fileInput = document.getElementById('input-logo-file');
             if(fileInput.files.length > 0) {
-                showToast('Subiendo logo...', 'success');
+                showToast('Comprimiendo logo...', 'success');
                 const imgUrl = await api.uploadImage(fileInput.files[0], 'brand');
-                if (imgUrl) {
-                    await api.updateSetting('logoUrl', imgUrl);
-                    applyLogo(imgUrl);
-                    showToast('Logo actualizado', 'success');
-                }
+                if (imgUrl) { await api.updateSetting('logoUrl', imgUrl); applyLogo(imgUrl); showToast('Logo actualizado', 'success'); }
             } else { showToast('Selecciona un archivo primero', 'error'); }
         }
 
         async function updateLogoUrlFallback() {
             const url = document.getElementById('input-logo-url-fallback').value;
-            if(url) {
-                await api.updateSetting('logoUrl', url);
-                applyLogo(url);
-                showToast('Logo forzado por URL guardado', 'success');
-                document.getElementById('input-logo-url-fallback').value = '';
-            }
+            if(url) { await api.updateSetting('logoUrl', url); applyLogo(url); showToast('Logo forzado por URL', 'success'); document.getElementById('input-logo-url-fallback').value = ''; }
         }
 
         function applyLogo(url) {
-            const img = document.getElementById('home-logo-img');
-            const fallback = document.getElementById('home-logo-fallback');
-            img.src = url;
-            img.classList.remove('hidden');
-            fallback.classList.add('hidden');
+            const img = document.getElementById('home-logo-img'); const fallback = document.getElementById('home-logo-fallback');
+            img.src = url; img.classList.remove('hidden'); fallback.classList.add('hidden');
         }
 
         async function saveAdminSettings() {
-            const wa = document.getElementById('config-wa-input').value;
-            const days = document.getElementById('config-days-input').value;
-            const op = parseInt(document.getElementById('config-open-hour').value);
-            const cl = parseInt(document.getElementById('config-close-hour').value);
-            
-            await api.updateSetting('whatsappNumber', wa);
-            await api.updateSetting('workingDays', days);
-            await api.updateSetting('openHour', op);
-            await api.updateSetting('closeHour', cl);
+            const wa = document.getElementById('config-wa-input').value; const days = document.getElementById('config-days-input').value;
+            const op = parseInt(document.getElementById('config-open-hour').value); const cl = parseInt(document.getElementById('config-close-hour').value);
+            await api.updateSetting('whatsappNumber', wa); await api.updateSetting('workingDays', days);
+            await api.updateSetting('openHour', op); await api.updateSetting('closeHour', cl);
+            globalSettings.whatsappNumber = wa;
             
             document.getElementById('home-whatsapp-btn').href = `https://wa.me/${wa}`;
             document.getElementById('working-days-text').textContent = days;
-            checkOpenStatus();
-            showToast('Ajustes de negocio guardados', 'success');
+            checkOpenStatus(); showToast('Ajustes de negocio guardados', 'success');
         }
 
         async function promptEditProfilePic() {
-            const file = await showInputModal('Actualizar Foto de Perfil', 'Selecciona una imagen de tu dispositivo:', '', 'file');
+            const file = await showInputModal('Actualizar Foto de Perfil', 'Selecciona una imagen:', '', 'file');
             if (file) {
-                showToast('Subiendo foto de perfil...', 'success');
+                showToast('Comprimiendo foto de perfil...', 'success');
                 const imgUrl = await api.uploadImage(file, 'profile');
-                if (imgUrl) {
-                    await api.updateSetting('profileImg', imgUrl);
-                    document.getElementById('about-profile-img').src = imgUrl;
-                    showToast('Foto de perfil actualizada', 'success');
-                }
-            } else {
-                const url = prompt('Opcional: Pega el enlace web (URL) de tu foto:');
-                if(url) {
-                    await api.updateSetting('profileImg', url);
-                    document.getElementById('about-profile-img').src = url;
-                }
+                if (imgUrl) { await api.updateSetting('profileImg', imgUrl); document.getElementById('about-profile-img').src = imgUrl; showToast('Foto actualizada', 'success'); }
             }
         }
 
         async function promptEditAbout() {
-            const currentSettings = await api.getSettings();
-            const text = await showInputModal('Editar Biografía', 'Escribe tu nueva biografía:', currentSettings.aboutText);
-            if (text) {
-                await api.updateSetting('aboutText', text);
-                document.getElementById('about-desc-text').textContent = text;
-                showToast('Biografía actualizada', 'success');
-            }
+            const text = await showInputModal('Editar Biografía', 'Escribe tu nueva biografía:', globalSettings.aboutText);
+            if (text) { await api.updateSetting('aboutText', text); globalSettings.aboutText = text; document.getElementById('about-desc-text').textContent = text; showToast('Biografía actualizada', 'success'); }
         }
 
-        async function promptAddGalleryPhoto() {
-            const file = await showInputModal('Nueva Foto a Galería', 'Selecciona la imagen que deseas subir:', '', 'file');
-            if (file) {
-                showToast('Subiendo foto...', 'success');
-                const imgUrl = await api.uploadImage(file, 'gallery');
-                if (imgUrl) {
-                    await api.addGalleryItem({ url: imgUrl, timestamp: Date.now() });
-                    await renderGallery();
-                    showToast('Foto agregada con éxito', 'success');
-                }
-            } else {
-                 const url = prompt('Opcional: Pega el enlace web (URL) de tu foto para la galería:');
-                 if(url) {
-                    await api.addGalleryItem({ url: url, timestamp: Date.now() });
-                    await renderGallery();
-                 }
-            }
+        async function promptEditLocation() {
+            const addr = await showInputModal('Editar Dirección', 'Texto de la dirección (No afecta mapa):', globalSettings.address);
+            if (addr) { await api.updateSetting('address', addr); globalSettings.address = addr; document.getElementById('location-address-text').textContent = addr; showToast('Dirección actualizada', 'success'); }
         }
-
-        async function handleDeleteGallery(id) { await api.deleteGalleryItem(id); await renderGallery(); showToast('Foto eliminada', 'success'); }
 
         function editService(id) {
             const srv = loadedServices.find(s => s.id === id);
@@ -1379,11 +1476,9 @@
             document.getElementById('srv-time').value = srv.time || '';
             document.getElementById('srv-desc').value = srv.desc || '';
             document.getElementById('srv-img').value = '';
-            document.getElementById('srv-img-url').value = '';
 
             const modal = document.getElementById('service-modal');
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('opacity-100'), 10);
+            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
         }
 
         function toggleServiceModal() {
@@ -1391,77 +1486,42 @@
             if (modal.classList.contains('hidden')) {
                 currentEditServiceId = null;
                 document.getElementById('service-modal-title').textContent = 'Nuevo Servicio';
-                document.getElementById('srv-title').value = '';
-                document.getElementById('srv-price').value = '';
-                document.getElementById('srv-time').value = '';
-                document.getElementById('srv-desc').value = '';
+                document.getElementById('srv-title').value = ''; document.getElementById('srv-price').value = '';
+                document.getElementById('srv-time').value = ''; document.getElementById('srv-desc').value = '';
                 document.getElementById('srv-img').value = '';
-                document.getElementById('srv-img-url').value = '';
                 
-                modal.classList.remove('hidden'); 
-                setTimeout(() => modal.classList.add('opacity-100'), 10);
+                modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
             } else {
-                modal.classList.remove('opacity-100'); 
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
             }
         }
 
         async function saveService() {
-            const title = document.getElementById('srv-title').value;
-            const price = document.getElementById('srv-price').value;
-            const time = document.getElementById('srv-time').value;
-            const desc = document.getElementById('srv-desc').value;
+            const title = document.getElementById('srv-title').value; const price = document.getElementById('srv-price').value;
+            const time = document.getElementById('srv-time').value; const desc = document.getElementById('srv-desc').value;
             const fileInput = document.getElementById('srv-img');
-            const urlInput = document.getElementById('srv-img-url').value;
             
             if (!title || !price) { showToast('Título y Precio son obligatorios', 'error'); return; }
 
-            let finalImgUrl = null;
+            const serviceData = { title: title, price: price, time: time || 'Consultar', desc: desc || '', timestamp: Date.now() };
             
             if (fileInput.files.length > 0) {
                 showToast('Comprimiendo imagen del servicio...', 'success');
                 const uploadedUrl = await api.uploadImage(fileInput.files[0], 'services');
-                if (uploadedUrl) finalImgUrl = uploadedUrl;
-            } else if (urlInput) {
-                finalImgUrl = urlInput;
+                if (uploadedUrl) serviceData.img = uploadedUrl;
             }
-
-            const serviceData = { title: title, price: price, time: time || 'Consultar', desc: desc || '', timestamp: Date.now() };
-            if (finalImgUrl) { serviceData.img = finalImgUrl; }
 
             if (currentEditServiceId) {
-                await api.updateService(currentEditServiceId, serviceData);
-                showToast('Servicio actualizado con éxito', 'success');
+                await api.updateService(currentEditServiceId, serviceData); showToast('Servicio actualizado con éxito', 'success');
             } else {
                 if (!serviceData.img) serviceData.img = 'https://placehold.co/600x400/fdfcfb/8e755e?text=Servicio';
-                await api.addService(serviceData);
-                showToast('Servicio guardado con éxito', 'success');
+                await api.addService(serviceData); showToast('Servicio guardado con éxito', 'success');
             }
 
-            await renderServices();
-            toggleServiceModal();
+            await renderServices(); await renderHomeShowcase(); toggleServiceModal();
         }
 
-        async function handleDeleteService(id) { await api.deleteService(id); await renderServices(); showToast('Servicio eliminado', 'success'); }
-
-        async function promptAddSocial() {
-            const name = await showInputModal('Red Social', 'Nombre (ej: Facebook):'); if (!name) return;
-            const url = await showInputModal('URL del perfil', 'Ej: https://facebook.com/tu-perfil');
-            const icon = await showInputModal('Icono', 'Escribe: instagram, facebook, twitter, video, globe', 'globe');
-            await api.addSocial({ name, url, icon }); await renderSocials(); showToast('Red social añadida', 'success');
-        }
-
-        async function handleDeleteSocial(id) { await api.deleteSocial(id); await renderSocials(); showToast('Red social removida', 'success'); }
-
-        async function promptEditLocation() {
-            const currentSettings = await api.getSettings();
-            const addr = await showInputModal('Editar Dirección', 'Ingresa el texto de la nueva dirección (No afecta el mapa):', currentSettings.address);
-            if (addr) {
-                await api.updateSetting('address', addr);
-                document.getElementById('location-address-text').textContent = addr;
-                showToast('Dirección actualizada', 'success');
-            }
-        }
+        async function handleDeleteService(id) { if(confirm('¿Eliminar servicio?')){ await api.deleteService(id); await renderServices(); await renderHomeShowcase(); showToast('Servicio eliminado', 'success'); } }
 
         let calCurrentMonth = new Date().getMonth();
         let calCurrentYear = new Date().getFullYear();
@@ -1469,9 +1529,7 @@
 
         async function renderCalendar() {
             document.getElementById('calendar-month-year').textContent = `${monthNames[calCurrentMonth]} ${calCurrentYear}`;
-            const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
-
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
             const firstDay = new Date(calCurrentYear, calCurrentMonth, 1).getDay();
             const daysInMonth = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
             const bookings = await api.getBookings();
@@ -1486,26 +1544,16 @@
 
                 grid.innerHTML += `
                     <div onclick="${hasBookings ? `openAgendaModal('${dateStr}')` : ''}" class="aspect-square flex flex-col justify-center items-center rounded-xl border ${baseClass} transition-colors">
-                        <span class="font-bold text-sm">${i}</span>
-                        ${dotHtml}
-                    </div>
-                `;
+                        <span class="font-bold text-sm">${i}</span>${dotHtml}
+                    </div>`;
             }
         }
 
-        function changeCalendarMonth(dir) {
-            calCurrentMonth += dir;
-            if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; }
-            if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; }
-            renderCalendar();
-        }
+        function changeCalendarMonth(dir) { calCurrentMonth += dir; if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; } if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; } renderCalendar(); }
 
         async function openAgendaModal(dateStr) {
-            const bookings = await api.getBookings();
-            const dayBookings = bookings.filter(b => b.date === dateStr);
-            const [y, m, d] = dateStr.split('-');
-            document.getElementById('agenda-modal-date').textContent = `Turnos del ${d}/${m}`;
-            
+            const bookings = await api.getBookings(); const dayBookings = bookings.filter(b => b.date === dateStr);
+            const [y, m, d] = dateStr.split('-'); document.getElementById('agenda-modal-date').textContent = `Turnos del ${d}/${m}`;
             const list = document.getElementById('agenda-list');
             list.innerHTML = dayBookings.sort((a,b) => a.time.localeCompare(b.time)).map(b => `
                 <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex justify-between items-center">
@@ -1519,16 +1567,11 @@
                     </a>
                 </div>
             `).join('');
-            
             lucide.createIcons();
-            const modal = document.getElementById('agenda-modal');
-            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
+            const modal = document.getElementById('agenda-modal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
         }
 
-        function closeAgendaModal() {
-            const modal = document.getElementById('agenda-modal');
-            modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
-        }
+        function closeAgendaModal() { const modal = document.getElementById('agenda-modal'); modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300); }
 
         async function renderInventory() {
             loadedInventory = await api.getInventory();
@@ -1537,12 +1580,13 @@
             
             container.innerHTML = loadedInventory.map(p => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative group flex flex-col h-full">
-                    ${appState.isAdmin ? `<div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    ${appState.isAdmin ? `<div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-white/90 p-1 rounded-xl shadow-sm border border-gray-100">
+                        <button onclick="toggleProductVisibility('${p.id}', ${!!p.visibleInHome})" class="p-2 ${p.visibleInHome ? 'bg-brand/10 text-brand' : 'bg-gray-100 text-gray-400'} rounded-lg hover:bg-brand hover:text-white transition-colors" title="${p.visibleInHome ? 'Ocultar en Inicio' : 'Mostrar en Inicio'}"><i data-lucide="${p.visibleInHome ? 'eye' : 'eye-off'}" class="w-4 h-4"></i></button>
                         <button onclick="editProduct('${p.id}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-500 hover:text-white transition-colors"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
                         <button onclick="deleteProduct('${p.id}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>` : ''}
                     
-                    ${p.img ? `<div class="w-full h-32 mb-4 rounded-xl overflow-hidden bg-gray-50 border border-gray-100"><img src="${p.img}" class="w-full h-full object-contain" alt="${p.title}"></div>` : ''}
+                    ${p.img ? `<div class="w-full h-32 mb-4 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 p-2"><img src="${p.img}" class="w-full h-full object-contain" alt="${p.title}"></div>` : ''}
                     <h4 class="font-bold text-gray-900 text-base mb-1 truncate pr-16">${p.title}</h4>
                     <p class="text-[11px] text-brand font-bold uppercase tracking-widest mb-4 font-mono flex-grow">${p.code} ${p.barcode ? `| EAN: ${p.barcode}` : ''}</p>
                     
@@ -1566,46 +1610,39 @@
             lucide.createIcons();
         }
 
+        async function toggleProductVisibility(id, currentStatus) {
+            await api.updateProduct(id, { visibleInHome: !currentStatus });
+            await renderInventory(); await renderHomeShowcase();
+            showToast(!currentStatus ? 'Producto añadido a la Vitrina' : 'Producto oculto del Inicio', 'success');
+        }
+
         function editProduct(id) {
             const prod = loadedInventory.find(p => p.id === id);
             if(!prod) return;
-            
             currentEditProductId = id;
             document.getElementById('product-modal-title').textContent = 'Editar Producto';
-            document.getElementById('prod-title').value = prod.title || '';
-            document.getElementById('prod-code').value = prod.code || '';
-            document.getElementById('prod-barcode').value = prod.barcode || '';
-            document.getElementById('prod-cost').value = prod.cost || '';
-            document.getElementById('prod-price').value = prod.price || '';
-            document.getElementById('prod-stock').value = prod.stock || '0';
+            document.getElementById('prod-title').value = prod.title || ''; document.getElementById('prod-code').value = prod.code || '';
+            document.getElementById('prod-barcode').value = prod.barcode || ''; document.getElementById('prod-cost').value = prod.cost || '';
+            document.getElementById('prod-price').value = prod.price || ''; document.getElementById('prod-stock').value = prod.stock || '0';
             document.getElementById('prod-img').value = ''; 
-
-            const modal = document.getElementById('product-modal');
-            modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
+            const modal = document.getElementById('product-modal'); modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
         }
 
         function toggleProductModal() {
             const modal = document.getElementById('product-modal');
             if (modal.classList.contains('hidden')) {
-                currentEditProductId = null;
-                document.getElementById('product-modal-title').textContent = 'Nuevo Producto';
+                currentEditProductId = null; document.getElementById('product-modal-title').textContent = 'Nuevo Producto';
                 ['prod-title','prod-code','prod-barcode','prod-cost','prod-price'].forEach(id => document.getElementById(id).value = '');
-                document.getElementById('prod-stock').value = '0';
-                document.getElementById('prod-img').value = ''; 
+                document.getElementById('prod-stock').value = '0'; document.getElementById('prod-img').value = ''; 
                 modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('opacity-100'), 10);
-            } else {
-                modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300);
-            }
+            } else { modal.classList.remove('opacity-100'); setTimeout(() => modal.classList.add('hidden'), 300); }
         }
 
         async function saveProduct() {
             const p = {
-                title: document.getElementById('prod-title').value,
-                code: document.getElementById('prod-code').value,
-                barcode: document.getElementById('prod-barcode').value,
-                cost: parseFloat(document.getElementById('prod-cost').value || 0),
-                price: parseFloat(document.getElementById('prod-price').value || 0),
-                stock: parseInt(document.getElementById('prod-stock').value || 0)
+                title: document.getElementById('prod-title').value, code: document.getElementById('prod-code').value,
+                barcode: document.getElementById('prod-barcode').value, cost: parseFloat(document.getElementById('prod-cost').value || 0),
+                price: parseFloat(document.getElementById('prod-price').value || 0), stock: parseInt(document.getElementById('prod-stock').value || 0)
             };
             if(!p.title || !p.code) { showToast('Título y Código son obligatorios', 'error'); return; }
             
@@ -1615,65 +1652,58 @@
                 p.img = await api.uploadImage(fileInput.files[0], 'inventory');
             }
 
-            if (currentEditProductId) {
-                await api.updateProduct(currentEditProductId, p);
-                showToast('Producto actualizado', 'success');
-            } else {
-                await api.addProduct(p);
-                showToast('Producto agregado al inventario', 'success');
-            }
+            if (currentEditProductId) { await api.updateProduct(currentEditProductId, p); showToast('Producto actualizado', 'success'); } 
+            else { p.visibleInHome = false; await api.addProduct(p); showToast('Producto agregado al inventario', 'success'); }
             
-            await renderInventory(); 
-            toggleProductModal(); 
+            await renderInventory(); await renderHomeShowcase(); toggleProductModal(); 
         }
 
-        async function deleteProduct(id) {
-            if(confirm("¿Estás seguro de eliminar este producto?")) {
-                await api.deleteProduct(id);
-                await renderInventory();
-                showToast('Producto eliminado', 'success');
-            }
-        }
+        async function deleteProduct(id) { if(confirm("¿Estás seguro de eliminar este producto?")) { await api.deleteProduct(id); await renderInventory(); await renderHomeShowcase(); showToast('Producto eliminado', 'success'); } }
 
         async function changeStock(id, amount) {
-            const items = await api.getInventory();
-            const prod = items.find(i => i.id === id);
-            if(prod) {
-                let newStock = prod.stock + amount;
-                if(newStock < 0) newStock = 0;
-                await api.updateProductStock(id, newStock); await renderInventory();
-            }
+            const items = await api.getInventory(); const prod = items.find(i => i.id === id);
+            if(prod) { let newStock = prod.stock + amount; if(newStock < 0) newStock = 0; await api.updateProductStock(id, newStock); await renderInventory(); await renderHomeShowcase(); }
         }
 
-        // --- CAJA MODULE ---
         async function renderCashier() {
             loadedInventory = await api.getInventory();
+            loadedServices = await api.getServices();
             const selectEl = document.getElementById('sale-product');
             
-            selectEl.innerHTML = '<option value="">Selecciona un producto en stock...</option>' + 
-                loadedInventory.filter(p => p.stock > 0).map(p => `
-                    <option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">
-                        ${p.title} - $${p.price} (Stock: ${p.stock})
-                    </option>
-                `).join('');
+            const products = loadedInventory.filter(p => p.stock > 0);
+            
+            let optionsHtml = '<option value="">Selecciona un ítem para cobrar...</option>';
+            
+            optionsHtml += '<optgroup label="📦 Productos en Depósito">';
+            products.forEach(p => { optionsHtml += `<option value="prod_${p.id}" data-type="product" data-rawid="${p.id}" data-price="${p.price}" data-stock="${p.stock}">${p.title} - $${p.price} (Stock: ${p.stock})</option>`; });
+            optionsHtml += '</optgroup>';
 
+            optionsHtml += '<optgroup label="✨ Servicios Realizados">';
+            loadedServices.forEach(s => {
+                const numericPrice = parseFloat(s.price.replace(/[^\d.-]/g, '')) || 0; // Extracts numbers from strings like "$20.000"
+                optionsHtml += `<option value="serv_${s.id}" data-type="service" data-rawid="${s.id}" data-price="${numericPrice}" data-stock="Infinity">${s.title} - ${s.price}</option>`;
+            });
+            optionsHtml += '</optgroup>';
+
+            selectEl.innerHTML = optionsHtml;
             document.getElementById('sale-quantity').value = 1;
             calculateSaleTotal();
 
+            // History Render
             const sales = await api.getSales();
             const historyContainer = document.getElementById('sales-history-container');
             
-            if (sales.length === 0) {
-                historyContainer.innerHTML = `<div class="text-center py-10 text-gray-400 text-sm">Aún no hay ventas registradas.</div>`;
-                return;
-            }
+            if (sales.length === 0) { historyContainer.innerHTML = `<div class="text-center py-10 text-gray-400 text-sm">Aún no hay ventas registradas.</div>`; return; }
 
             historyContainer.innerHTML = sales.map(sale => `
                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex justify-between items-center hover:bg-white transition-colors">
                     <div class="flex-1">
-                        <p class="font-bold text-gray-900 text-sm truncate">${sale.productName}</p>
+                        <p class="font-bold text-gray-900 text-sm truncate flex items-center">
+                            ${sale.itemType === 'service' ? '<i data-lucide="sparkles" class="w-3.5 h-3.5 mr-1.5 text-brand"></i>' : '<i data-lucide="package" class="w-3.5 h-3.5 mr-1.5 text-brand"></i>'}
+                            ${sale.productName}
+                        </p>
                         <div class="flex items-center text-xs text-gray-500 mt-1 space-x-3">
-                            <span class="flex items-center"><i data-lucide="package" class="w-3 h-3 mr-1"></i> ${sale.quantity} und</span>
+                            <span class="flex items-center">Cant: ${sale.quantity}</span>
                             <span class="flex items-center"><i data-lucide="${sale.paymentMethod === 'Efectivo' ? 'banknote' : 'smartphone'}" class="w-3 h-3 mr-1"></i> ${sale.paymentMethod}</span>
                         </div>
                     </div>
@@ -1694,33 +1724,24 @@
             const btn = document.getElementById('btn-process-sale');
 
             if (selectEl.value === "") {
-                totalDisplay.textContent = "0";
-                btn.disabled = true;
-                btn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
-                btn.classList.remove('bg-gray-900', 'text-white', 'hover:bg-black');
+                totalDisplay.textContent = "0"; btn.disabled = true;
+                btn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed'); btn.classList.remove('bg-gray-900', 'text-white', 'hover:bg-black');
                 return;
             }
 
             const selectedOption = selectEl.options[selectEl.selectedIndex];
             const price = parseFloat(selectedOption.dataset.price);
-            const stock = parseInt(selectedOption.dataset.stock);
+            const stock = parseFloat(selectedOption.dataset.stock);
             let qty = parseInt(qtyEl.value);
 
-            if (qty > stock) {
-                qtyEl.value = stock;
-                qty = stock;
-                showToast(`Solo quedan ${stock} unidades disponibles`, 'error');
-            } else if (qty < 1 || isNaN(qty)) {
-                qtyEl.value = 1;
-                qty = 1;
-            }
+            if (qty > stock && selectedOption.dataset.type === 'product') {
+                qtyEl.value = stock; qty = stock; showToast(`Solo quedan ${stock} unidades disponibles`, 'error');
+            } else if (qty < 1 || isNaN(qty)) { qtyEl.value = 1; qty = 1; }
 
             const total = price * qty;
             totalDisplay.textContent = total;
 
-            btn.disabled = false;
-            btn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
-            btn.classList.add('bg-gray-900', 'text-white', 'hover:bg-black');
+            btn.disabled = false; btn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed'); btn.classList.add('bg-gray-900', 'text-white', 'hover:bg-black');
         }
 
         async function processSale() {
@@ -1730,33 +1751,33 @@
             if (selectEl.value === "") return;
 
             const selectedOption = selectEl.options[selectEl.selectedIndex];
-            const productId = selectEl.value;
+            const rawId = selectedOption.dataset.rawid;
+            const itemType = selectedOption.dataset.type;
             const productName = selectedOption.text.split(' - ')[0]; 
             const price = parseFloat(selectedOption.dataset.price);
-            const initialStock = parseInt(selectedOption.dataset.stock); 
+            const initialStock = parseFloat(selectedOption.dataset.stock); 
             const qty = parseInt(qtyEl.value);
             const totalAmount = price * qty;
-            
             const paymentMethod = document.querySelector('input[name="sale-payment"]:checked').value;
 
             const now = new Date();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
             const saleRecord = {
-                productId, productName, quantity: qty, totalAmount, paymentMethod, date: dateStr, timestamp: Date.now()
+                productId: rawId, itemType, productName, quantity: qty, totalAmount, paymentMethod, date: dateStr, timestamp: Date.now()
             };
 
             await api.addSale(saleRecord);
-            await changeStock(productId, -qty);
             
-            showToast('Venta registrada con éxito', 'success');
-
-            if ((initialStock - qty) <= 0) {
-                setTimeout(() => {
-                    showToast(`¡Atención! "${productName}" se ha quedado sin stock (0).`, 'error');
-                }, 600); 
+            if (itemType === 'product') {
+                await changeStock(rawId, -qty);
+                if ((initialStock - qty) <= 0) setTimeout(() => { showToast(`¡Atención! "${productName}" se quedó sin stock.`, 'error'); }, 600); 
+            } else {
+                await api.incrementServiceSales(rawId, qty);
+                await renderServices(); // Update the badges in the services view
             }
-
+            
+            showToast('Cobro registrado con éxito', 'success');
             await renderCashier();
         }
 
