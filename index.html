@@ -3,8 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PamIlarregui | Servicios Make Up & Beauty</title>
     
+    <!-- ========================================== -->
+    <!-- OPTIMIZACIÓN SEO (Buscadores y Google Maps)-->
+    <!-- ========================================== -->
+    <title>Pam Ilarregui | Maquillaje Profesional y Belleza en Concordia</title>
+    <meta name="description" content="Estudio de maquillaje profesional y belleza en Concordia, Entre Ríos. Reserva tu turno con Pam Ilarregui para maquillaje, perfilado de cejas y compra de productos cosméticos exclusivos.">
+    <meta name="keywords" content="make up, maquillaje, maquillaje profesional, belleza, estética, Concordia, Entre Ríos, cejas, pestañas, Pam Ilarregui, cosméticos, cuidado facial, salón de belleza">
+    <meta name="author" content="Pam Ilarregui">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Spanish">
+    <meta name="geo.region" content="AR-E">
+    <meta name="geo.placename" content="Concordia">
+    
+    <!-- Open Graph (Para compartir bonito en WhatsApp, Facebook, Instagram) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pam Ilarregui | Make Up & Beauty">
+    <meta property="og:description" content="Reserva tu turno online y descubre nuestros productos de belleza en Concordia, Entre Ríos.">
+    <meta property="og:image" content="./logo.png">
+    <meta property="og:url" content="https://pamilarregui.com.ar">
+    <meta property="og:site_name" content="Pam Ilarregui Make Up">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pam Ilarregui | Make Up & Beauty">
+    <meta name="twitter:description" content="Estudio de maquillaje y belleza en Concordia. Reserva tu turno hoy.">
+    <meta name="twitter:image" content="./logo.png">
+
+    <!-- Schema.org JSON-LD para Negocio Local (Vital para Google) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BeautySalon",
+      "name": "Pam Ilarregui Make Up & Beauty",
+      "image": "https://pamilarregui.com.ar/logo.png",
+      "@id": "",
+      "url": "https://pamilarregui.com.ar",
+      "telephone": "+5491123456789",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Eva Peron 1821",
+        "addressLocality": "Concordia",
+        "addressRegion": "Entre Ríos",
+        "postalCode": "3200",
+        "addressCountry": "AR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -31.3946629,
+        "longitude": -58.0210255
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "opens": "09:00",
+        "closes": "19:00"
+      },
+      "priceRange": "$$"
+    }
+    </script>
+    <!-- ========================================== -->
+    <!-- FIN OPTIMIZACIÓN SEO                       -->
+    <!-- ========================================== -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -194,8 +262,22 @@
                         <h4 class="font-bold text-xs uppercase tracking-wider text-brand mb-3 flex items-center"><i data-lucide="settings" class="w-4 h-4 mr-1"></i> Ajustes de Negocio</h4>
                         <div class="space-y-3 text-sm">
                             <div>
-                                <label class="text-gray-500 font-medium block mb-1">WhatsApp (ej: 54911...):</label>
+                                <label class="text-gray-500 font-medium block mb-1">WhatsApp (Principal/Turnos):</label>
                                 <input type="text" id="config-wa-input" class="w-full p-2.5 rounded-xl border border-gray-200 focus:border-brand outline-none">
+                            </div>
+                            <div>
+                                <label class="text-gray-500 font-medium block mb-1">WhatsApp (Productos/Tienda):</label>
+                                <input type="text" id="config-wa-prod-input" placeholder="Ej: 54911..." class="w-full p-2.5 rounded-xl border border-gray-200 focus:border-brand outline-none">
+                            </div>
+                            <div class="p-3 bg-white rounded-xl border border-gray-100">
+                                <label class="text-gray-500 font-medium block mb-1">Plantilla Mensaje (Productos):</label>
+                                <textarea id="config-msg-prod-input" rows="2" class="w-full p-2.5 rounded-xl border border-gray-200 focus:border-brand outline-none text-sm bg-gray-50" placeholder="Ej: Hola, quiero el producto {{producto}}"></textarea>
+                                <p class="text-[10px] text-gray-400 mt-1">Usa <code class="bg-gray-100 px-1 rounded text-brand font-bold">{{producto}}</code> para insertar el nombre del producto.</p>
+                            </div>
+                            <div class="p-3 bg-white rounded-xl border border-gray-100">
+                                <label class="text-gray-500 font-medium block mb-1">Plantilla Mensaje (Turnos):</label>
+                                <textarea id="config-msg-book-input" rows="3" class="w-full p-2.5 rounded-xl border border-gray-200 focus:border-brand outline-none text-sm bg-gray-50" placeholder="Ej: Hola, quiero reservar..."></textarea>
+                                <p class="text-[10px] text-gray-400 mt-1">Usa: <code class="bg-gray-100 px-1 rounded">{{servicio}}</code>, <code class="bg-gray-100 px-1 rounded">{{fecha}}</code>, <code class="bg-gray-100 px-1 rounded">{{hora}}</code>, <code class="bg-gray-100 px-1 rounded">{{nombre}}</code>.</p>
                             </div>
                             <div>
                                 <label class="text-gray-500 font-medium block mb-1">Días laborales:</label>
@@ -319,10 +401,10 @@
             <h2 class="font-bebas text-4xl text-center mb-6 text-black tracking-wide">Dónde Encontrarnos</h2>
             
             <div class="bg-white p-2 rounded-3xl shadow-lg border border-gray-100 mb-6 w-full box-border">
-                <div class="relative w-full aspect-[4/3] sm:aspect-video rounded-2xl overflow-hidden bg-gray-100">
+                <div class="relative w-full aspect-[4/3] sm:aspect-video rounded-2xl overflow-hidden bg-gray-100 relative">
                     <iframe id="location-iframe" 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3406.3704013862853!2d-58.0128387!3d-31.376348799999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade82180856ba7%3A0xf00f756975b1c1a!2sAv.%20Eva%20Per%C3%B3n%201821%2C%20E3200%20AIF%2C%20Entre%20R%C3%ADos!5e0!3m2!1ses!2sar!4v1789836560631!5m2!1ses!2sar" 
-                            class="absolute inset-0 w-full h-full border-0" 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3403.206385311867!2d-58.0210255239121!3d-31.394662974271424!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95ade80637cb6c59%3A0x722a523e473bbdfa!2sPlaza%2025%20de%20Mayo!5e0!3m2!1ses!2sar!4v1714495537542!5m2!1ses!2sar" 
+                            class="absolute top-0 left-0 w-full h-full border-0 inset-0" 
                             style="width: 100% !important; height: 100% !important;" 
                             allowfullscreen="" 
                             loading="lazy" 
@@ -709,7 +791,6 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Imagen (Opcional)</label>
                     <input type="file" id="srv-img" accept="image/*" class="w-full text-xs file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand-dark hover:file:bg-brand/20 cursor-pointer mb-2">
-                    <input type="text" id="srv-img-url" placeholder="O pega el Link URL de la imagen..." class="w-full p-2.5 rounded-xl border border-gray-200 outline-none focus:border-brand text-xs hidden"> <!-- Escondido para favorecer la subida de archivo con compresor -->
                     <p class="text-[10px] text-gray-400 mt-1">* Si editas y no seleccionas imagen, se mantendrá la actual.</p>
                 </div>
             </div>
@@ -752,6 +833,9 @@
         const defaultSettings = {
             logoUrl: '',
             whatsappNumber: '5491123456789',
+            whatsappProducts: '5491123456789',
+            productMessageTemplate: '¡Hola Pam! ✨ Me interesa comprar el siguiente producto que vi en tu página:\n\n*{{producto}}*',
+            bookingMessageTemplate: '¡Hola Pam! ✨ Quiero reservar un turno.\n\n*Servicio:* {{servicio}}\n*Fecha:* {{fecha}}\n*Hora:* {{hora}} hs\n*Nombre:* {{nombre}}',
             openHour: 9,
             closeHour: 19,
             workingDays: 'Lunes a Sábados',
@@ -1058,6 +1142,12 @@
             
             document.getElementById('home-whatsapp-btn').href = `https://wa.me/${globalSettings.whatsappNumber}`;
             document.getElementById('config-wa-input').value = globalSettings.whatsappNumber;
+            document.getElementById('config-wa-prod-input').value = globalSettings.whatsappProducts || globalSettings.whatsappNumber;
+            
+            // Cargar plantillas al panel
+            document.getElementById('config-msg-prod-input').value = globalSettings.productMessageTemplate || '';
+            document.getElementById('config-msg-book-input').value = globalSettings.bookingMessageTemplate || '';
+
             document.getElementById('config-open-hour').value = globalSettings.openHour;
             document.getElementById('config-close-hour').value = globalSettings.closeHour;
             document.getElementById('config-days-input').value = globalSettings.workingDays || 'Lunes a Sábados';
@@ -1133,8 +1223,11 @@
         }
 
         function buyProduct(productName) {
-            const message = `Hola Pam! ✨ Me interesa comprar el siguiente producto que vi en tu página:\n\n*${productName}*`;
-            const waUrl = `https://wa.me/${globalSettings.whatsappNumber}?text=${encodeURIComponent(message)}`;
+            const waNum = globalSettings.whatsappProducts || globalSettings.whatsappNumber;
+            let template = globalSettings.productMessageTemplate || '¡Hola Pam! ✨ Me interesa comprar el siguiente producto que vi en tu página:\n\n*{{producto}}*';
+            const message = template.replace(/{{producto}}/g, productName);
+            
+            const waUrl = `https://wa.me/${waNum}?text=${encodeURIComponent(message)}`;
             window.open(waUrl, '_blank');
         }
 
@@ -1242,7 +1335,7 @@
                 return `
                 <div class="flex items-center group relative">
                     <a href="${soc.url}" target="_blank" class="flex items-center space-x-2 bg-white px-5 py-2.5 rounded-xl shadow-sm border border-gray-100 hover:border-brand hover:shadow-md transition-all">
-                        <i data-lucide="${iconName}" class="w-5 h-5 text-gray-700 group-hover:text-brand transition-colors"></i>
+                        <i data-lucide="${iconName}" class="w-5 h-5 text-gray-700 group-hover:text-brand transition-colors fallback-icon"></i>
                         <span class="text-sm font-medium text-gray-700 group-hover:text-brand transition-colors">${soc.name}</span>
                     </a>
                     ${appState.isAdmin ? `<button onclick="handleDeleteSocial('${soc.id}')" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md z-10"><i data-lucide="x" class="w-3 h-3"></i></button>` : ''}
@@ -1250,10 +1343,17 @@
                 `;
             }).join('');
             
-            // Retraso de seguridad para asegurar que el DOM esté listo y pinte los íconos
+            // Retraso de seguridad para asegurar que el DOM esté listo y pinte los íconos (Evita que se rompan las redes creadas antes)
             setTimeout(() => {
                 lucide.createIcons();
-            }, 50);
+                // Verificación de respaldo: si algún icono falló al cargar, le ponemos uno genérico.
+                document.querySelectorAll('.fallback-icon').forEach(icon => {
+                    if (icon.tagName !== 'svg' && icon.tagName !== 'SVG') {
+                        icon.setAttribute('data-lucide', 'link');
+                        lucide.createIcons();
+                    }
+                });
+            }, 100);
         }
 
         function openSocialModal() {
@@ -1346,9 +1446,15 @@
             await api.addBooking(bookingData);
             await renderCalendar(); 
 
-            const settings = globalSettings;
-            const message = `Hola Pam! ✨ Quiero reservar un turno.\n\n*Servicio:* ${selectedService}\n*Fecha:* ${selectedDate}\n*Hora:* ${selectedTime} hs\n*Nombre:* ${name}`;
-            const waUrl = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(message)}`;
+            let template = globalSettings.bookingMessageTemplate || '¡Hola Pam! ✨ Quiero reservar un turno.\n\n*Servicio:* {{servicio}}\n*Fecha:* {{fecha}}\n*Hora:* {{hora}} hs\n*Nombre:* {{nombre}}';
+            
+            let message = template
+                .replace(/{{servicio}}/g, selectedService)
+                .replace(/{{fecha}}/g, selectedDate)
+                .replace(/{{hora}}/g, selectedTime)
+                .replace(/{{nombre}}/g, name);
+
+            const waUrl = `https://wa.me/${globalSettings.whatsappNumber}?text=${encodeURIComponent(message)}`;
             
             window.open(waUrl, '_blank');
             closeBookingModal();
@@ -1360,7 +1466,7 @@
 
         document.querySelectorAll('.star-rate').forEach(star => {
             star.addEventListener('click', (e) => {
-                // currentTarget asegura seleccionar el icono completo sin fallos
+                // Usamos currentTarget para capturar la estrella completa siempre
                 currentReviewRating = parseInt(e.currentTarget.dataset.rating || 5);
                 document.querySelectorAll('.star-rate').forEach((s, idx) => {
                     if (idx < currentReviewRating) { s.classList.add('text-yellow-400', 'fill-current'); s.classList.remove('text-gray-200'); } 
@@ -1442,11 +1548,28 @@
         }
 
         async function saveAdminSettings() {
-            const wa = document.getElementById('config-wa-input').value; const days = document.getElementById('config-days-input').value;
-            const op = parseInt(document.getElementById('config-open-hour').value); const cl = parseInt(document.getElementById('config-close-hour').value);
-            await api.updateSetting('whatsappNumber', wa); await api.updateSetting('workingDays', days);
-            await api.updateSetting('openHour', op); await api.updateSetting('closeHour', cl);
+            const wa = document.getElementById('config-wa-input').value; 
+            const waProd = document.getElementById('config-wa-prod-input').value;
+            const msgProd = document.getElementById('config-msg-prod-input').value;
+            const msgBook = document.getElementById('config-msg-book-input').value;
+            
+            const days = document.getElementById('config-days-input').value;
+            const op = parseInt(document.getElementById('config-open-hour').value); 
+            const cl = parseInt(document.getElementById('config-close-hour').value);
+            
+            await api.updateSetting('whatsappNumber', wa); 
+            await api.updateSetting('whatsappProducts', waProd);
+            await api.updateSetting('productMessageTemplate', msgProd);
+            await api.updateSetting('bookingMessageTemplate', msgBook);
+            
+            await api.updateSetting('workingDays', days);
+            await api.updateSetting('openHour', op); 
+            await api.updateSetting('closeHour', cl);
+            
             globalSettings.whatsappNumber = wa;
+            globalSettings.whatsappProducts = waProd;
+            globalSettings.productMessageTemplate = msgProd;
+            globalSettings.bookingMessageTemplate = msgBook;
             
             document.getElementById('home-whatsapp-btn').href = `https://wa.me/${wa}`;
             document.getElementById('working-days-text').textContent = days;
